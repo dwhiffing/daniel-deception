@@ -28,7 +28,10 @@ export class Table extends Schema {
   
   @type([Card])
   activeScene = new ArraySchema<Card>()
-
+  
+  @type(['string'])
+  activeCrime = new ArraySchema<string>()
+  
   constructor() {
     super()
     this.phaseTimer = 0
@@ -64,5 +67,38 @@ export class Table extends Schema {
     })
 
     this.activeScene.push(...this.sceneDeck.splice(0, 5))
+  }
+
+  murder(clue, means) {
+    this.activeCrime.push(clue)
+    this.activeCrime.push(means)
+    this.phaseIndex = 1
+  }
+
+  accuse(player, clue, means) {
+    if (!player.hasBadge) return
+
+    if (this.activeCrime[0] === clue && this.activeCrime[1] === means) {
+      this.endGame()
+    } else {
+      player.hasBadge = false
+    }
+  }
+
+  endGame() {
+    this.phaseIndex = -1
+    this.phaseTimer = 0
+  }
+
+  mark(type, value) {
+    if (this.phaseIndex !== 1) return
+
+    const card = this.activeScene.find(c => c.type === type)
+    card.markedValueIndex = card.values.findIndex(c => c === value)
+    const markedCardsLength = this.activeScene.filter(c => c.markedValueIndex > -1).length
+
+    if (markedCardsLength === this.activeScene.length) {
+      this.phaseIndex = 2
+    }
   }
 }

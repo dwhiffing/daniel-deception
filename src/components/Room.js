@@ -1,35 +1,57 @@
 import { Typography } from '@material-ui/core'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Flex } from '.'
 import { Actions } from './Actions'
 import { Card } from './Card'
 import { Seat } from './Seat'
 
-// TODO: Allow admin to select scientist
-// TODO: Allow murderer to select cards
-// TODO: allow scientist to mark scene
-// TODO: allow investigators to guess
 // TODO: handle win conditions
+// TODO: add timer
+// TODO: put phase details in header
 
 export function Room({ players, scene, room, phaseIndex }) {
+  const [selectedMeans, setSelectedMeans] = useState()
+  const [selectedClue, setSelectedClue] = useState()
   const currentPlayer = players.find((p) => p.id === room.sessionId) || {}
-  let scientist = players.find((p) => p.role === 1) || { name: 'none' }
-  if (scientist === currentPlayer)
-    scientist = { name: `You (${scientist.name})` }
+  let scientist = players.find((p) => p.role === 1)
+  let scientistLabel = scientist ? scientist.name : 'none'
+  let murderer = players.find((p) => p.role === 2)
+  let murdererLabel = murderer ? murderer.name : 'none'
+
+  useEffect(() => {
+    setSelectedMeans()
+    setSelectedClue()
+  }, [phaseIndex])
+
+  if (scientist === currentPlayer) scientistLabel = `You (${scientist.name})`
+  if (murderer === currentPlayer) murdererLabel = `You (${murderer.name})`
+  const sendAction = (action, rest = {}) => room.send({ action, ...rest })
   return (
-    <Flex variant="column" style={{ paddingTop: 50, paddingBottom: 80 }}>
+    <Flex variant="column" style={{ paddingTop: 50, paddingBottom: 200 }}>
       <Header />
 
       <Flex variant="column">
         <Typography align="center" variant="h5">
-          Forensic Scientist: {scientist.name}
+          Forensic Scientist: {scientistLabel}
+        </Typography>
+        <Typography align="center" variant="h5">
+          Murderer: {murdererLabel}
+        </Typography>
+        <Typography align="center" variant="h5">
+          Phase Index: {phaseIndex}
         </Typography>
 
-        <Scene scene={scene} />
+        <Scene scene={scene} sendAction={sendAction} />
 
         <Seats
           showSetScientistButton={currentPlayer.isAdmin && phaseIndex === -1}
-          sendAction={(action, rest = {}) => room.send({ action, ...rest })}
+          sendAction={sendAction}
+          currentPlayer={currentPlayer}
+          selectedMeans={selectedMeans}
+          selectedClue={selectedClue}
+          phaseIndex={phaseIndex}
+          setSelectedMeans={setSelectedMeans}
+          setSelectedClue={setSelectedClue}
           players={players
             .map((p, index) => ({
               ...p,
@@ -40,7 +62,13 @@ export function Room({ players, scene, room, phaseIndex }) {
         />
       </Flex>
 
-      <Actions room={room} players={players} />
+      <Actions
+        room={room}
+        players={players}
+        phaseIndex={phaseIndex}
+        selectedMeans={selectedMeans}
+        selectedClue={selectedClue}
+      />
     </Flex>
   )
 }
@@ -79,7 +107,14 @@ const Scene = (props) => (
         <Flex style={{ width: '100%', flexWrap: 'wrap' }}>
           {item.values.map((value, n) => (
             <Flex variant="center" key={`scene-${n}`}>
-              <Card backgroundColor="gray" style={{ minWidth: 100 }}>
+              <Card
+                backgroundColor="gray"
+                selected={item.markedValueIndex === n}
+                style={{ minWidth: 100 }}
+                onClick={() =>
+                  props.sendAction('markScene', { type: item.type, value })
+                }
+              >
                 {value}
               </Card>
             </Flex>

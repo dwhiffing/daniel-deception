@@ -30,6 +30,7 @@ export class Deception extends Room<Table> {
     
     const eligiblePlayers = this.getSeatedPlayers()
     const canDeal = eligiblePlayers.length >= 4 && this.state.players.find(p => p.role === 1)
+    console.log(data, player.role)
 
     if (data.action === 'deal' && canDeal) {
       this.state.deal()
@@ -38,6 +39,18 @@ export class Deception extends Room<Table> {
         this.state.players.forEach( p => p.role = 0)
         const player = this.getPlayer(data.playerId)
         player.role = 1
+      }
+    } else if (data.action === 'markScene' && player.role === 1 && this.state.phaseIndex === 1) {
+      if (typeof data.type === 'string' && typeof data.value === 'string') {
+        this.state.mark(data.type, data.value)
+      }
+    } else if (data.action === 'murder' && player.role === 2) {
+      if (typeof data.clue === 'string' && typeof data.means === 'string') {
+        this.state.murder(data.clue, data.means)
+      }
+    } else if (data.action === 'accuse' && player.role === 2) {
+      if (typeof data.clue === 'string' && typeof data.means === 'string') {
+        this.state.accuse(player, data.clue, data.means)
       }
     } else if (data.action === 'sit') {
       if (typeof data.seatIndex === 'number') {

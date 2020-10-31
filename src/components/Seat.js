@@ -7,20 +7,23 @@ export const Seat = ({
   showSetScientistButton,
   sendAction,
   player,
+  currentPlayer,
+  phaseIndex,
+  selectedClue,
+  setSelectedClue,
+  selectedMeans,
+  setSelectedMeans,
   style = {},
 }) => {
-  const {
-    id,
-    // remainingConnectionTime,
-    // remainingMoveTime,
-    // connected,
-    clues,
-    role,
-    means,
-    isClient,
-    index,
-    name,
-  } = player
+  const { id, clues, role, means, isClient, index, name } = player
+
+  const canSelect =
+    (phaseIndex === 0 &&
+      currentPlayer.role === 2 &&
+      player.id === currentPlayer.id) ||
+    (phaseIndex === 2 && currentPlayer.hasBadge)
+
+  const opacity = canSelect ? 'FF' : '55'
 
   return id ? (
     <Flex
@@ -38,7 +41,12 @@ export const Seat = ({
 
       <Flex variant="justify-between">
         {means.map((means, index) => (
-          <Card backgroundColor={'#D33830'} key={`means-${index}`}>
+          <Card
+            backgroundColor={`#D33830${opacity}`}
+            selected={selectedMeans === means}
+            key={`means-${index}`}
+            onClick={() => canSelect && setSelectedMeans(means)}
+          >
             {means}
           </Card>
         ))}
@@ -46,7 +54,12 @@ export const Seat = ({
 
       <Flex variant="justify-between">
         {clues.map((clue, index) => (
-          <Card backgroundColor={'#0071AA'} key={`clue-${index}`}>
+          <Card
+            backgroundColor={`#0071AA${opacity}`}
+            key={`clue-${index}`}
+            selected={selectedClue === clue}
+            onClick={() => canSelect && setSelectedClue(clue)}
+          >
             {clue}
           </Card>
         ))}
