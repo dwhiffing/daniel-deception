@@ -1,0 +1,46 @@
+{
+  "name": "deception",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.9.7",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "colyseus.js": "^0.12.2",
+    "faker": "^4.1.0",
+    "lodash": "^4.17.20",
+    "numeral": "^2.0.6",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
+    "react-motion": "^0.5.2",
+    "react-scripts": "3.4.0"
+  },
+  "scripts": {
+    "install": "npm install --prefix ./server && npm run build",
+    "start": "react-scripts start",
+    "build": "NODE_ENV=production react-scripts build",
+    "test": "react-scripts test",
+    "start-server": "npm start --prefix ./server",
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "gh-pages": "^2.2.0"
+  }
+}

@@ -1,0 +1,32 @@
+Components
+  12 Role cards
+  200 Clue cards
+  90 Means cards
+  26 Scene cards 
+
+Setup
+  Assign Forensic Scientist role, Assign murderer role
+  Deal 4 clue cards and 4 means cards to each player
+  Each non Forensic Scientist gets a badge
+  Forensic Scientist gets cause of death, location + 4 random scene cards ready
+
+Phase 1
+  Murderer selects one of their means, and one of their clues
+  Forensic Scientist is shown the means and clue
+
+Phase 2
+  if first round
+    Forensic Scientist presents scene cards one at a time, marking one of the items on the scene card
+  if second or third round
+    Forensic Scientist replaces one of the scene cards with a new random scene card
+  
+Phase 3
+  Non Forensic Scientists are given time to discuss the evidence, and may use their badge to guess the means and clue cards
+  If a player guesses correctly, the game is over and the investigators win
+  otherwise, they may no longer guess, but can still discuss
+  if all investigators have used their badges, the murderer wins
+
+Repeat Phase 2 + 3
+Repeat Phase 2 + 3
+
+Murderers win if the crime is not solved by this point

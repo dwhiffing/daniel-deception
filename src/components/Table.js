@@ -1,0 +1,81 @@
+import React from 'react'
+import { Seat } from './Seat'
+import { Flex } from '.'
+
+const Table = ({ layout, room, onSit, players }) => {
+  const getPlayer = (i) =>
+    players
+      .map((p) => ({
+        ...p,
+        isClient: p.id === room.sessionId,
+      }))
+      .find((p) => p.seatIndex === i)
+
+  return (
+    <Flex
+      variant="column justify-between"
+      width="100%"
+      maxWidth={1100}
+      maxHeight={500}
+    >
+      <Flex>
+        {document.documentElement.clientHeight > 350 &&
+          document.documentElement.clientWidth > 400 && <Flex />}
+        {layout[0].map((n) => (
+          <Seat
+            key={`seat-${n}`}
+            index={n}
+            getPlayer={getPlayer}
+            onSit={onSit}
+          />
+        ))}
+        {document.documentElement.clientHeight > 350 &&
+          document.documentElement.clientWidth > 400 && <Flex />}
+      </Flex>
+
+      <Flex flex={2}>
+        {layout[1].length > 0 && (
+          <Flex variant="column">
+            {layout[1].map((n) => (
+              <Seat
+                key={`seat-${n}`}
+                index={n}
+                getPlayer={getPlayer}
+                onSit={onSit}
+              />
+            ))}
+          </Flex>
+        )}
+
+        {layout[2].length > 0 && (
+          <Flex variant="column">
+            {layout[2].map((n) => (
+              <Seat
+                key={`seat-${n}`}
+                index={n}
+                getPlayer={getPlayer}
+                onSit={onSit}
+              />
+            ))}
+          </Flex>
+        )}
+      </Flex>
+
+      <Flex>
+        {document.documentElement.clientHeight > 350 &&
+          document.documentElement.clientWidth > 400 && <Flex />}
+        {layout[3].map((n) => (
+          <Seat
+            key={`seat-${n}`}
+            index={n}
+            getPlayer={getPlayer}
+            onSit={onSit}
+          />
+        ))}
+        {document.documentElement.clientHeight > 350 &&
+          document.documentElement.clientWidth > 400 && <Flex />}
+      </Flex>
+    </Flex>
+  )
+}
+export default Table
