@@ -15,6 +15,8 @@ function App() {
     room.onLeave(() => {
       setRoom(null)
       setPlayers([])
+      setPhaseIndex(-1)
+      setScene([])
     })
 
     room.state.onChange = (changes) =>
@@ -34,7 +36,12 @@ function App() {
   return (
     <Flex variant="column">
       {room ? (
-        <Room room={room} players={players} scene={scene} />
+        <Room
+          room={room}
+          players={players}
+          scene={scene}
+          phaseIndex={phaseIndex}
+        />
       ) : (
         <Lobby setRoom={setRoom} />
       )}

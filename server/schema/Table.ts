@@ -39,7 +39,6 @@ export class Table extends Schema {
     if (this.phaseIndex !== -1) return
     
     this.phaseIndex = 0
-    const scientistId = this.players[0].id
     
      // Shuffle clue, means, and scene decks
     this.clueDeck = this.clueDeck.filter(() => false)
@@ -52,12 +51,8 @@ export class Table extends Schema {
     this.sceneDeck.push(new Card(LOCATION_SCENE.type, shuffle(LOCATION_SCENE.values).slice(0, 6)))
     this.sceneDeck.push(...shuffle(SCENES.map(s => new Card(s.type, s.values))))
 
-    // Assign Forensic Scientist role
-    const scientist = this.players.find(p => p.id === scientistId)
-    scientist.role = 1
-    
     // Assign murderer role
-    const otherPlayers = this.players.filter(p => p.id !== scientistId)
+    const otherPlayers = this.players.filter(p => p.role !== 1)
     const murderer = shuffle(otherPlayers)[0]
     if (murderer) murderer.role = 2
     

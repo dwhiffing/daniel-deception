@@ -3,8 +3,8 @@ import { Button, Checkbox, FormControlLabel } from '@material-ui/core'
 import { Flex } from './'
 
 export function Actions({ room, players }) {
-  const [showAdmin, setShowAdmin] = useState(false)
   const player = players.find((p) => p.id === room.sessionId) || {}
+  const [showAdmin, setShowAdmin] = useState(true)
   const sendAction = (action, rest = {}) => room.send({ action, ...rest })
 
   return (
@@ -13,6 +13,7 @@ export function Actions({ room, players }) {
       variant="center"
       zIndex={100}
       style={{
+        borderTop: '1px solid gray',
         backgroundColor: 'white',
         padding: 10,
         minHeight: 50,
@@ -34,9 +35,11 @@ export function Actions({ room, players }) {
             }
             label="Admin"
           />
-          <Action disabled={false} onClick={() => sendAction('deal')}>
-            Deal
-          </Action>
+          {showAdmin && (
+            <Action disabled={false} onClick={() => sendAction('deal')}>
+              Deal
+            </Action>
+          )}
         </>
       )}
     </Flex>

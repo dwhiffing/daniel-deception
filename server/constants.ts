@@ -1,6 +1,6 @@
 export const CAUSE_OF_DEATH_SCENE = {
   type: 'Cause of Death',
-  values: ['Suffocation', 'Severe Injury', 'Loss of Blood', 'Illness', 'Poisoning', 'Accident']
+  values: ['Suffocation', 'Severe Injury', 'Blood Loss', 'Illness', 'Poisoning', 'Accident']
 }
 
 export const LOCATION_SCENE = {

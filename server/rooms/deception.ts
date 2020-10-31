@@ -29,10 +29,16 @@ export class Deception extends Room<Table> {
     if (!player) return null
     
     const eligiblePlayers = this.getSeatedPlayers()
-    const canDeal = true || eligiblePlayers.length >= 4 && player
+    const canDeal = eligiblePlayers.length >= 4 && this.state.players.find(p => p.role === 1)
 
     if (data.action === 'deal' && canDeal) {
       this.state.deal()
+    } else if (data.action === 'setScientist') {
+      if (typeof data.playerId === 'string') {
+        this.state.players.forEach( p => p.role = 0)
+        const player = this.getPlayer(data.playerId)
+        player.role = 1
+      }
     } else if (data.action === 'sit') {
       if (typeof data.seatIndex === 'number') {
         player.sit(data.seatIndex)
