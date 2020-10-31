@@ -17,11 +17,14 @@ export class Player extends Schema {
   @type('string')
   name: string
 
+  @type('number')
+  role: number
+
   @type('boolean')
   connected: boolean
 
   @type('boolean')
-  isBot: boolean
+  hasBadge: boolean
 
   @type('boolean')
   isAdmin: boolean
@@ -49,9 +52,10 @@ export class Player extends Schema {
     this.seatIndex = -1
     this.clues = new ArraySchema<string>()
     this.means = new ArraySchema<string>()
+    this.role = 0
+    this.hasBadge = false
 
     this.connected = true
-    this.isBot = opts.isBot || false
     this.isAdmin = opts.isAdmin || false
     this.name = opts.name || ''
   }
@@ -64,6 +68,7 @@ export class Player extends Schema {
   giveCards(clues, means) {
     this.clues.push(...clues)
     this.means.push(...means)
+    this.hasBadge = true
   }
 
   sit(seatIndex) {

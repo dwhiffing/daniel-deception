@@ -1,6 +1,9 @@
-import { type, Schema, ArraySchema } from '@colyseus/schema'
+import { type, filter, Schema, ArraySchema } from '@colyseus/schema'
 import { Player } from './Player'
 import { Card } from './Card'
+import { MEANS, CLUES, SCENES,CAUSE_OF_DEATH_SCENE,LOCATION_SCENE } from '../constants'
+import shuffle from 'lodash/shuffle'
+
 export class Table extends Schema {
   @type('number')
   phaseTimer: number
@@ -11,13 +14,16 @@ export class Table extends Schema {
   @type([Player])
   players = new ArraySchema<Player>()
   
-  @type([Card])
+  // @filter(() => false)
+  @type(['string'])
   clueDeck = new ArraySchema<string>()
   
+  // @filter(() => false)
   @type(['string'])
   meansDeck = new ArraySchema<string>()
   
-  @type(['string'])
+  // @filter(() => false)
+  @type([Card])
   sceneDeck = new ArraySchema<Card>()
   
   @type([Card])
@@ -26,6 +32,42 @@ export class Table extends Schema {
   constructor() {
     super()
     this.phaseTimer = 0
+    this.phaseIndex = -1
+  }
+
+  deal() {
+    if (this.phaseIndex !== -1) return
+    
     this.phaseIndex = 0
+    const scientistId = this.players[0].id
+    
+     // Shuffle clue, means, and scene decks
+    this.clueDeck = this.clueDeck.filter(() => false)
+    this.meansDeck = this.meansDeck.filter(() => false)
+    this.clueDeck.push(...shuffle(CLUES))
+    this.meansDeck.push(...shuffle(MEANS))
+
+    // Setup scene deck
+    this.sceneDeck.push(new Card(CAUSE_OF_DEATH_SCENE.type, CAUSE_OF_DEATH_SCENE.values))
+    this.sceneDeck.push(new Card(LOCATION_SCENE.type, shuffle(LOCATION_SCENE.values).slice(0, 6)))
+    this.sceneDeck.push(...shuffle(SCENES.map(s => new Card(s.type, s.values))))
+
+    // Assign Forensic Scientist role
+    const scientist = this.players.find(p => p.id === scientistId)
+    scientist.role = 1
+    
+    // Assign murderer role
+    const otherPlayers = this.players.filter(p => p.id !== scientistId)
+    const murderer = shuffle(otherPlayers)[0]
+    if (murderer) murderer.role = 2
+    
+    // Deal 4 clue cards and 4 means cards to each player
+    otherPlayers.forEach(p => {
+      const clueCards = this.clueDeck.splice(0,4)
+      const meansCards = this.meansDeck.splice(0,4)
+      p.giveCards(clueCards, meansCards)
+    })
+
+    this.activeScene.push(...this.sceneDeck.splice(0, 5))
   }
 }

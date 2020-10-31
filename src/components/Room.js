@@ -1,59 +1,56 @@
-import React, { useEffect, useState } from 'react'
-import Table from './Table'
+import React from 'react'
+import { Flex } from '.'
+import { Actions } from './Actions'
+import { Seat } from './Seat'
 
-const getIsPortrait = () =>
-  document.documentElement.clientWidth < document.documentElement.clientHeight
-
-export function Room({ players, room }) {
-  const [portrait, setPortrait] = useState(getIsPortrait())
-  const currentPlayer = players.find((p) => p.id === room.sessionId) || {}
-  const seatedPlayers = players
-    .filter((p) => p.seatIndex !== -1)
-    .map((p) => ({ ...p, isClient: p.id === room.sessionId }))
-    .sort((a, b) => a.seatIndex - b.seatIndex)
-
-  const onSit =
-    currentPlayer.seatIndex === -1
-      ? (seatIndex) => room.send({ action: 'sit', seatIndex })
-      : null
-
-  useEffect(() => {
-    const callback = () => setPortrait(getIsPortrait())
-    window.addEventListener('resize', callback)
-    return () => window.removeEventListener('resize', callback)
-  }, [])
+export function Room({ players, scene, room }) {
+  const _players = players
+    .map((p, index) => ({
+      ...p,
+      index,
+      isClient: p.id === room.sessionId,
+    }))
+    .filter((p) => p.role !== 1)
 
   return (
-    <Table
-      layout={
-        document.documentElement.clientHeight <= 320
-          ? currentPlayer.seatIndex >= 4
-            ? SMALL_2
-            : SMALL
-          : portrait
-          ? PORTRAIT
-          : LANDSCAPE
-      }
-      onSit={onSit}
-      room={room}
-      currentPlayer={currentPlayer}
-      players={seatedPlayers}
-    />
+    <Flex variant="column" style={{ paddingTop: 50, paddingBottom: 80 }}>
+      <Flex
+        flex={0}
+        variant="row justify-between"
+        style={{
+          padding: 10,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: 'white',
+        }}
+      >
+        <span>Deception</span>
+        <span>1:23</span>
+        <span>?</span>
+      </Flex>
+
+      <Flex variant="column">
+        <Flex variant="row justify-between">
+          {scene.map((item, n) => (
+            <Flex variant="column" key={`scene-${n}`}>
+              <p>{item.type}</p>
+              {item.values.map((value, n) => (
+                <span key={`scene-${n}`}>{value}</span>
+              ))}
+            </Flex>
+          ))}
+        </Flex>
+
+        <Flex flex={2} variant="column">
+          {_players.map((player, n) => (
+            <Seat key={`seat-${player.index}`} player={player} />
+          ))}
+        </Flex>
+      </Flex>
+
+      <Actions room={room} players={players} />
+    </Flex>
   )
 }
-
-const PORTRAIT = [
-  [0, 1],
-  [9, 8, 7],
-  [2, 3, 4],
-  [6, 5],
-]
-
-const LANDSCAPE = [
-  [0, 1, 2],
-  [9, 8],
-  [3, 4],
-  [7, 6, 5],
-]
-const SMALL = [[0, 1, 2, 3, 4], [], [], [9, 8, 7, 6, 5]]
-const SMALL_2 = [[9, 8, 7, 6, 5], [], [], [0, 1, 2, 3, 4]]

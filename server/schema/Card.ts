@@ -2,7 +2,7 @@ import { type, Schema,ArraySchema } from '@colyseus/schema'
 
 export class Card extends Schema {
   @type('string')
-  category: string
+  type: string
 
   @type(['string'])
   values = new ArraySchema<string>()
@@ -10,9 +10,9 @@ export class Card extends Schema {
   @type('number')
   markedValueIndex: number
 
-  constructor(category: string, values: ArraySchema<string>) {
+  constructor(type: string, values) {
     super()
-    this.category =category
+    this.type = type
     this.values.push(...values)
     this.markedValueIndex = -1
   }

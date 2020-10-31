@@ -1,9 +1,5 @@
 import { Room, Delayed, Client } from 'colyseus'
 import { Player, Table } from '../schema'
-import faker from 'faker'
-import random from 'lodash/random'
-
-const BOT_TIMEOUT = 1000
 
 export class Deception extends Room<Table> {
   maxClients = 15
@@ -31,17 +27,19 @@ export class Deception extends Room<Table> {
   onMessage(client: Client, data: any) {
     const player = this.getPlayer(client.sessionId)
     if (!player) return null
-    if (data.action === 'sit') {
+    
+    const eligiblePlayers = this.getSeatedPlayers()
+    const canDeal = true || eligiblePlayers.length >= 4 && player
+
+    if (data.action === 'deal' && canDeal) {
+      this.state.deal()
+    } else if (data.action === 'sit') {
       if (typeof data.seatIndex === 'number') {
         player.sit(data.seatIndex)
       }
       this.sitInAvailableSeat(player)
     } else if (data.action === 'setName') {
       player.setName(data.name)
-    } else if (data.action === 'addBot') {
-      this.addBot()
-    } else if (data.action === 'removeBot') {
-      this.removeBot()
     }
   }
 
@@ -67,43 +65,12 @@ export class Deception extends Room<Table> {
     this.state.players = this.state.players.filter(p => p.id !== player.id)
   }
 
-  addBot() {
-    if (this.state.players.length >= 10) {
-      return
-    }
-
-    const bot = new Player(faker.random.uuid().slice(0, 8), {
-      isBot: true,
-      name: faker.name.firstName(),
-      clock: this.clock,
-    })
-    this.state.players.push(bot)
-    this.sitInAvailableSeat(bot)
-  }
-
-  removeBot() {
-    const nextBotToRemove = this.getSeatedPlayers()
-      .sort((a, b) => b.seatIndex - a.seatIndex)
-      .find(p => p.isBot)
-    if (nextBotToRemove) {
-      this.removePlayer(nextBotToRemove)
-    }
-  }
-
-  doPlayerMove(bot, action = {}, timeout = BOT_TIMEOUT) {
-    this.clock.setTimeout(() => {
-      this.onMessage({ sessionId: bot.id } as Client, {
-        ...action,
-      })
-    }, random(timeout / 2, timeout * 2))
-  }
-
   sitInAvailableSeat = player => {
     const takenSeats = this.getSeatedPlayers().map(p => p.seatIndex)
     const availableSeats = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(
       n => !takenSeats.includes(n),
     )
-    const availableSeat = availableSeats[0] // sample(availableSeats)
+    const availableSeat = availableSeats[0]
     if (typeof availableSeat === 'number') {
       player.sit(availableSeat)
     }
