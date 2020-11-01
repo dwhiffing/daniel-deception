@@ -7,10 +7,10 @@ export function Actions({
   players,
   phaseIndex,
   selectedMeans,
+  crime,
   selectedClue,
 }) {
   const player = players.find((p) => p.id === room.sessionId) || {}
-  const [showAdmin, setShowAdmin] = useState(true)
   const sendAction = (action, rest = {}) => room.send({ action, ...rest })
 
   return (
@@ -29,62 +29,79 @@ export function Actions({
         right: 0,
       }}
     >
-      {player.isAdmin && (
-        <>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showAdmin}
-                onChange={(e, newValue) => setShowAdmin(newValue)}
-                name="showAdmin"
-              />
-            }
-            label="Admin"
-          />
-          {showAdmin && (
-            <Action disabled={false} onClick={() => sendAction('deal')}>
-              Deal
+      {player.isAdmin && phaseIndex === -1 && (
+        <Action
+          disabled={players.filter((p) => p.role === 1).length === 0}
+          onClick={() => sendAction('deal')}
+        >
+          Deal
+        </Action>
+      )}
+
+      {phaseIndex === 0 &&
+        (player.role === 2 ? (
+          <Flex variant="column center">
+            {(!selectedMeans || !selectedClue) && (
+              <p>
+                Select one of your Red Means cards and Blue Clue cards to plan
+                the murder.
+              </p>
+            )}
+            {selectedMeans && selectedClue && (
+              <p>
+                You will kill the victim using {selectedMeans} and leave behind{' '}
+                {selectedClue} as evidence.
+              </p>
+            )}
+            <Action
+              disabled={!selectedMeans || !selectedClue}
+              onClick={() => {
+                sendAction('murder', {
+                  means: selectedMeans,
+                  clue: selectedClue,
+                })
+              }}
+            >
+              Commit Murder
             </Action>
+          </Flex>
+        ) : (
+          <p>The murder is currently happening</p>
+        ))}
+
+      {phaseIndex === 1 &&
+        (player.role === 1 ? (
+          <p>
+            Mark the crime scene based on the means {crime[1]} and the clue{' '}
+            {crime[0]}
+          </p>
+        ) : (
+          <p>The Forensic Scientist is investigating</p>
+        ))}
+
+      {phaseIndex === 2 && (
+        <>
+          <p>
+            Discuss the clues given by Forensics to determine the murderer, and
+            via which means (Red) and key evidence (Blue). You only get one
+            chance to accuse!
+          </p>
+          {player.hasBadge && (
+            <Flex variant="column center">
+              <Action
+                disabled={!selectedMeans || !selectedClue}
+                onClick={() => {
+                  sendAction('accuse', {
+                    means: selectedMeans,
+                    clue: selectedClue,
+                  })
+                }}
+              >
+                Accuse
+              </Action>
+            </Flex>
           )}
         </>
-      )}
-
-      {player.role === 2 && phaseIndex === 0 && (
-        <Flex variant="column center">
-          {(!selectedMeans || !selectedClue) && (
-            <p>
-              Select one of your Red Means cards and Blue Clue cards to plan the
-              murder.
-            </p>
-          )}
-          {selectedMeans && selectedClue && (
-            <p>
-              You will kill the victim using {selectedMeans} and leave behind{' '}
-              {selectedClue} as evidence.
-            </p>
-          )}
-          <Action
-            disabled={!selectedMeans || !selectedClue}
-            onClick={() => {
-              sendAction('murder', { means: selectedMeans, clue: selectedClue })
-            }}
-          >
-            Commit Murder
-          </Action>
-        </Flex>
-      )}
-
-      {player.hasBadge && phaseIndex === 2 && (
-        <Flex variant="column center">
-          <Action
-            disabled={!selectedMeans || !selectedClue}
-            onClick={() => {
-              sendAction('accuse', { means: selectedMeans, clue: selectedClue })
-            }}
-          >
-            Accuse
-          </Action>
-        </Flex>
       )}
     </Flex>
   )

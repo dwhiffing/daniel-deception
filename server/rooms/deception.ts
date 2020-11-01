@@ -1,6 +1,6 @@
 import { Room, Delayed, Client } from 'colyseus'
 import { Player, Table } from '../schema'
-
+let dicussionInterval
 export class Deception extends Room<Table> {
   maxClients = 15
   leaveInterval: Delayed
@@ -42,15 +42,17 @@ export class Deception extends Room<Table> {
       }
     } else if (data.action === 'markScene' && player.role === 1 && this.state.phaseIndex === 1) {
       if (typeof data.type === 'string' && typeof data.value === 'string') {
-        this.state.mark(data.type, data.value)
+        this.markScene(data.type, data.value)
       }
     } else if (data.action === 'murder' && player.role === 2) {
       if (typeof data.clue === 'string' && typeof data.means === 'string') {
         this.state.murder(data.clue, data.means)
       }
-    } else if (data.action === 'accuse' && player.role === 2) {
+    } else if (data.action === 'accuse') {
       if (typeof data.clue === 'string' && typeof data.means === 'string') {
-        this.state.accuse(player, data.clue, data.means)
+        this.state.accuse(player, data.clue, data.means, () => {
+          if (dicussionInterval) dicussionInterval.clear()
+        })
       }
     } else if (data.action === 'sit') {
       if (typeof data.seatIndex === 'number') {
@@ -106,4 +108,33 @@ export class Deception extends Room<Table> {
     const sortedPlayers = this.getPlayers().filter(p => p.seatIndex > -1)
     return sortedPlayers
   }
+
+  markScene = (type, value) => {
+    this.state.mark(type, value)
+
+    const markedCardsLength = this.state.activeScene.filter(c => c.markedValueIndex > -1).length
+
+    if (markedCardsLength === this.state.activeScene.length - this.state.roundsLeft) {
+      if (dicussionInterval) dicussionInterval.clear()
+
+      this.state.phaseIndex = 2
+      
+      dicussionInterval = this.clock.setInterval(() => {
+        if (this.state.phaseTimer > 1) {
+          this.state.phaseTimer -= 1
+        } else {
+          dicussionInterval.clear()
+
+          if (this.state.roundsLeft > 0) {
+            this.state.roundsLeft -= 1
+            this.state.phaseIndex = 1
+            this.state.phaseTimer = this.state.timerMax * this.state.players.length
+          } else {
+            this.state.endGame('The murderers won!')
+          }
+        }
+      }, 1000)
+    }
+  }
 }
+

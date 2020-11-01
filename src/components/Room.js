@@ -5,18 +5,18 @@ import { Actions } from './Actions'
 import { Card } from './Card'
 import { Seat } from './Seat'
 
-// TODO: handle win conditions
-// TODO: add timer
-// TODO: put phase details in header
+// TODO: Ensure that evidence phases have extra cards drawn
+// TODO: Hide players for scientist when marking evidence
+// TODO: Send evidence marking over server with player color?
+// TODO: Ensure all secrets are removed
 
-export function Room({ players, scene, room, phaseIndex }) {
+export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
   const [selectedMeans, setSelectedMeans] = useState()
   const [selectedClue, setSelectedClue] = useState()
   const currentPlayer = players.find((p) => p.id === room.sessionId) || {}
   let scientist = players.find((p) => p.role === 1)
   let scientistLabel = scientist ? scientist.name : 'none'
   let murderer = players.find((p) => p.role === 2)
-  let murdererLabel = murderer ? murderer.name : 'none'
 
   useEffect(() => {
     setSelectedMeans()
@@ -24,47 +24,53 @@ export function Room({ players, scene, room, phaseIndex }) {
   }, [phaseIndex])
 
   if (scientist === currentPlayer) scientistLabel = `You (${scientist.name})`
-  if (murderer === currentPlayer) murdererLabel = `You (${murderer.name})`
+
   const sendAction = (action, rest = {}) => room.send({ action, ...rest })
   return (
     <Flex variant="column" style={{ paddingTop: 50, paddingBottom: 200 }}>
-      <Header />
+      <Header phaseIndex={phaseIndex} phaseTimer={phaseTimer} />
 
       <Flex variant="column">
-        <Typography align="center" variant="h5">
+        {(phaseIndex === 1 || phaseIndex === 2) && (
+          <Scene player={currentPlayer} scene={scene} sendAction={sendAction} />
+        )}
+
+        <Typography align="center">
           Forensic Scientist: {scientistLabel}
         </Typography>
-        <Typography align="center" variant="h5">
-          Murderer: {murdererLabel}
-        </Typography>
-        <Typography align="center" variant="h5">
-          Phase Index: {phaseIndex}
-        </Typography>
 
-        <Scene scene={scene} sendAction={sendAction} />
-
-        <Seats
-          showSetScientistButton={currentPlayer.isAdmin && phaseIndex === -1}
-          sendAction={sendAction}
-          currentPlayer={currentPlayer}
-          selectedMeans={selectedMeans}
-          selectedClue={selectedClue}
-          phaseIndex={phaseIndex}
-          setSelectedMeans={setSelectedMeans}
-          setSelectedClue={setSelectedClue}
-          players={players
-            .map((p, index) => ({
-              ...p,
-              index,
-              isClient: p.id === room.sessionId,
-            }))
-            .filter((p) => p.role !== 1)}
-        />
+        {(phaseIndex === 2 ||
+          phaseIndex === -1 ||
+          (phaseIndex === 0 && currentPlayer.role === 2) ||
+          (phaseIndex === 1 && currentPlayer.role !== 1)) && (
+          <Seats
+            showSetScientistButton={currentPlayer.isAdmin && phaseIndex === -1}
+            sendAction={sendAction}
+            currentPlayer={currentPlayer}
+            selectedMeans={selectedMeans}
+            selectedClue={selectedClue}
+            phaseIndex={phaseIndex}
+            setSelectedMeans={(s) =>
+              setSelectedMeans((o) => (o === s ? null : s))
+            }
+            setSelectedClue={(s) =>
+              setSelectedClue((o) => (o === s ? null : s))
+            }
+            players={players
+              .map((p, index) => ({
+                ...p,
+                index,
+                isClient: p.id === room.sessionId,
+              }))
+              .filter((p) => p.role !== 1)}
+          />
+        )}
       </Flex>
 
       <Actions
         room={room}
         players={players}
+        crime={crime}
         phaseIndex={phaseIndex}
         selectedMeans={selectedMeans}
         selectedClue={selectedClue}
@@ -73,7 +79,7 @@ export function Room({ players, scene, room, phaseIndex }) {
   )
 }
 
-const Header = () => (
+const Header = ({ phaseIndex, phaseTimer }) => (
   <Flex
     flex={0}
     variant="row justify-between"
@@ -87,41 +93,44 @@ const Header = () => (
       backgroundColor: 'white',
     }}
   >
-    <span>Deception</span>
-    <span>1:23</span>
-    <span>?</span>
+    <span style={{ minWidth: 50 }}>Deception</span>
+    <span style={{ minWidth: 50 }}>{PHASES[phaseIndex + 1]}</span>
+    <span style={{ minWidth: 50 }}>{phaseTimer}</span>
   </Flex>
 )
 
 const Scene = (props) => (
   <Flex variant="column justify-between" style={{ flexWrap: 'wrap' }}>
-    {props.scene.map((item, n) => (
-      <Flex
-        variant="column align-center"
-        key={`scene-${n}`}
-        style={{ margin: 8 }}
-      >
-        <Typography variant="h5" align="center">
-          {item.type}
-        </Typography>
-        <Flex style={{ width: '100%', flexWrap: 'wrap' }}>
-          {item.values.map((value, n) => (
-            <Flex variant="center" key={`scene-${n}`}>
-              <Card
-                backgroundColor="gray"
-                selected={item.markedValueIndex === n}
-                style={{ minWidth: 100 }}
-                onClick={() =>
-                  props.sendAction('markScene', { type: item.type, value })
-                }
-              >
-                {value}
-              </Card>
-            </Flex>
-          ))}
+    {props.scene
+      .filter((item) => props.player.role === 1 || item.markedValueIndex > -1)
+      .map((item, n) => (
+        <Flex
+          variant="column align-center"
+          key={`scene-${n}`}
+          style={{ margin: 8 }}
+        >
+          <Typography variant="h5" align="center">
+            {item.type}
+          </Typography>
+          <Flex style={{ width: '100%', flexWrap: 'wrap' }}>
+            {item.values.map((value, n) => (
+              <Flex variant="center" key={`scene-${n}`}>
+                <Card
+                  backgroundColor={
+                    item.markedValueIndex === n ? '#D33830' : 'gray'
+                  }
+                  style={{ minWidth: 100 }}
+                  onClick={() =>
+                    props.sendAction('markScene', { type: item.type, value })
+                  }
+                >
+                  {value}
+                </Card>
+              </Flex>
+            ))}
+          </Flex>
         </Flex>
-      </Flex>
-    ))}
+      ))}
   </Flex>
 )
 
@@ -132,3 +141,10 @@ const Seats = ({ players, ...props }) => (
     ))}
   </Flex>
 )
+
+const PHASES = [
+  'PRE-GAME',
+  'MURDER PHASE',
+  'EVIDENCE PHASE',
+  'PRESENTATION PHASE',
+]

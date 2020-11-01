@@ -21,7 +21,7 @@ export const Seat = ({
     (phaseIndex === 0 &&
       currentPlayer.role === 2 &&
       player.id === currentPlayer.id) ||
-    (phaseIndex === 2 && currentPlayer.hasBadge)
+    (phaseIndex === 2 && id !== currentPlayer.id && currentPlayer.role !== 1)
 
   const opacity = canSelect ? 'FF' : '55'
 
@@ -65,7 +65,7 @@ export const Seat = ({
         ))}
       </Flex>
 
-      {showSetScientistButton && role === 0 && (
+      {showSetScientistButton && role !== 1 && (
         <Button
           variant="contained"
           onClick={() => sendAction('setScientist', { playerId: player.id })}

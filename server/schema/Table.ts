@@ -11,6 +11,12 @@ export class Table extends Schema {
   @type('number')
   phaseIndex: number
 
+  @type('number')
+  roundsLeft: number
+
+  @type('string')
+  message: string
+
   @type([Player])
   players = new ArraySchema<Player>()
   
@@ -32,27 +38,35 @@ export class Table extends Schema {
   @type(['string'])
   activeCrime = new ArraySchema<string>()
   
+  timerMax
+  
   constructor() {
     super()
     this.phaseTimer = 0
+    this.message = ''
     this.phaseIndex = -1
+    this.timerMax=30
   }
 
   deal() {
     if (this.phaseIndex !== -1) return
     
     this.phaseIndex = 0
-    
+    this.roundsLeft = 2
+    this.phaseTimer = this.timerMax * this.players.length
+
      // Shuffle clue, means, and scene decks
     this.clueDeck = this.clueDeck.filter(() => false)
     this.meansDeck = this.meansDeck.filter(() => false)
     this.clueDeck.push(...shuffle(CLUES))
     this.meansDeck.push(...shuffle(MEANS))
-
+    
     // Setup scene deck
+    this.sceneDeck = new ArraySchema<Card>()
     this.sceneDeck.push(new Card(CAUSE_OF_DEATH_SCENE.type, CAUSE_OF_DEATH_SCENE.values))
     this.sceneDeck.push(new Card(LOCATION_SCENE.type, shuffle(LOCATION_SCENE.values).slice(0, 6)))
     this.sceneDeck.push(...shuffle(SCENES.map(s => new Card(s.type, s.values))))
+
 
     // Assign murderer role
     const otherPlayers = this.players.filter(p => p.role !== 1)
@@ -66,7 +80,7 @@ export class Table extends Schema {
       p.giveCards(clueCards, meansCards)
     })
 
-    this.activeScene.push(...this.sceneDeck.splice(0, 5))
+    this.activeScene.push(...this.sceneDeck.splice(0, 7))
   }
 
   murder(clue, means) {
@@ -75,30 +89,37 @@ export class Table extends Schema {
     this.phaseIndex = 1
   }
 
-  accuse(player, clue, means) {
+
+  accuse(player, clue, means, callback) {
     if (!player.hasBadge) return
 
     if (this.activeCrime[0] === clue && this.activeCrime[1] === means) {
-      this.endGame()
+      callback()
+      this.endGame(`${player.name} was correct! The crime was commited via ${clue} and ${means}!`)
     } else {
+      this.message = `${player.name} was wrong! The crime was not commited via ${clue} and ${means}!`
       player.hasBadge = false
+    }
+    
+    if (this.players.every(p => !p.hasBadge)) {
+      callback()
+      this.endGame('The murderer has eluded the investgators! They may come forward if they choose')
     }
   }
 
-  endGame() {
+  endGame(message) {
     this.phaseIndex = -1
     this.phaseTimer = 0
+    this.message = message
+    this.players.forEach(p => p.removeCards())
+    this.activeScene = new ArraySchema<Card>()
+    this.activeCrime = new ArraySchema<string>()
   }
 
   mark(type, value) {
     if (this.phaseIndex !== 1) return
 
     const card = this.activeScene.find(c => c.type === type)
-    card.markedValueIndex = card.values.findIndex(c => c === value)
-    const markedCardsLength = this.activeScene.filter(c => c.markedValueIndex > -1).length
-
-    if (markedCardsLength === this.activeScene.length) {
-      this.phaseIndex = 2
-    }
+    if (card.markedValueIndex === -1) card.markedValueIndex = card.values.findIndex(c => c === value)
   }
 }
