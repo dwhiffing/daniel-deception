@@ -53,7 +53,7 @@ export class Table extends Schema {
     
     this.phaseIndex = 0
     this.roundsLeft = 2
-    this.phaseTimer = this.timerMax * this.players.length
+    this.phaseTimer = 60+this.timerMax * this.players.length
 
      // Shuffle clue, means, and scene decks
     this.clueDeck = this.clueDeck.filter(() => false)

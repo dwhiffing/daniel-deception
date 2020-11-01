@@ -128,7 +128,7 @@ export class Deception extends Room<Table> {
           if (this.state.roundsLeft > 0) {
             this.state.roundsLeft -= 1
             this.state.phaseIndex = 1
-            this.state.phaseTimer = this.state.timerMax * this.state.players.length
+            this.state.phaseTimer = 60 + this.state.timerMax * this.state.players.length
           } else {
             this.state.endGame('The murderers won!')
           }
