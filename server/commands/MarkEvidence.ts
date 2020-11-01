@@ -1,13 +1,11 @@
 import { Command } from "@colyseus/command"
-import { Player, Table } from "../schema";
-import { CheckEvidenceCommand } from "./checkEvidence";
+import { RoomState } from "../schema"
 
-export class MarkEvidenceCommand extends Command<Table, {
+export class MarkEvidenceCommand extends Command<RoomState, {
     playerId: string,
     type: string,
     value: string
 }> {
-
   validate({ playerId, type, value }) {
     const player = this.state.players.find(p => p.id === playerId)
     const card = this.state.activeScene.find(c => c.type === type)
@@ -17,7 +15,10 @@ export class MarkEvidenceCommand extends Command<Table, {
   execute({ playerId, type, value }) {
     const card = this.state.activeScene.find(c => c.type === type)
     card.markedValueIndex = card.values.findIndex(c => c === value)
-    return [new CheckEvidenceCommand()]
+    const markedCardsLength = this.state.activeScene.filter(c => c.markedValueIndex > -1).length
+    if (markedCardsLength === this.state.activeScene.length - this.state.roundsLeft) {
+      this.state.phaseIndex = 2
+      this.state.phaseTimer = 30 * this.state.players.length
+    }
   }
-
 }

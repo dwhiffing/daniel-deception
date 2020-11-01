@@ -86,7 +86,7 @@ export const Seat = ({
       {showSetScientistButton && role !== 1 && (
         <Button
           variant="contained"
-          onClick={() => sendAction('setScientist', { playerId: player.id })}
+          onClick={() => sendAction('AssignScientist', { playerId: player.id })}
         >
           Assign Forensic Scientist
         </Button>

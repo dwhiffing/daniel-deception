@@ -1,3 +1,3 @@
 export { Player } from './Player'
-export { Table } from './Table'
-export { Card } from './Card'
+export { RoomState } from './RoomState'
+export { SceneCard } from './SceneCard'

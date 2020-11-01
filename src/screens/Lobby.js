@@ -35,7 +35,7 @@ export function Lobby({ setRoom }) {
       localStorage.setItem('name', name)
       localStorage.setItem(room.id, room.sessionId)
       setRoom(room)
-      room.send('setName', { name })
+      room.send('SetName', { name })
     },
     [setRoom],
   )

@@ -33,7 +33,7 @@ export function Actions({
       {player.isAdmin && phaseIndex === -1 && (
         <Action
           disabled={players.filter((p) => p.role === 1).length === 0}
-          onClick={() => sendAction('deal')}
+          onClick={() => sendAction('Deal')}
         >
           Deal
         </Action>
@@ -60,7 +60,7 @@ export function Actions({
               <Action
                 disabled={!selectedMeans || !selectedClue}
                 onClick={() => {
-                  sendAction('murder', {
+                  sendAction('Murder', {
                     means: selectedMeans,
                     clue: selectedClue,
                   })
@@ -95,7 +95,7 @@ export function Actions({
                 <Action
                   disabled={!selectedMeans || !selectedClue}
                   onClick={() => {
-                    sendAction('accuse', {
+                    sendAction('Accuse', {
                       means: selectedMeans,
                       clue: selectedClue,
                     })

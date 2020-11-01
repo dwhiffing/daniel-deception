@@ -118,7 +118,7 @@ const Scene = (props) => (
                   }
                   style={{ minWidth: 100 }}
                   onClick={() =>
-                    props.sendAction('markScene', { type: item.type, value })
+                    props.sendAction('MarkEvidence', { type: item.type, value })
                   }
                 >
                   {value}

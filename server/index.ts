@@ -2,7 +2,7 @@ import http from 'http'
 import express from 'express'
 import cors from 'cors'
 import { Server } from 'colyseus'
-import { Deception } from './rooms/deception'
+import { DeceptionRoom } from './rooms/DeceptionRoom'
 
 const app = express()
 const port = Number(process.env.PORT || 3553)
@@ -16,7 +16,7 @@ const gameServer = new Server({
   express: app,
 })
 
-gameServer.define('deception', Deception)
+gameServer.define('deception', DeceptionRoom)
 gameServer.listen(port)
 
 app.use(express.static(__dirname + '/../build'))

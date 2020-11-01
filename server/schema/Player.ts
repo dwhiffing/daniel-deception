@@ -1,30 +1,28 @@
 import { type, Schema, ArraySchema } from '@colyseus/schema'
-import { Delayed } from 'colyseus'
-const RECONNECT_TIME = 120
 
 export class Player extends Schema {
-  leaveInterval: Delayed
+  reconnection: any
 
   @type('string')
-  id: string
+  id = ''
 
   @type('string')
-  name: string
+  name = ''
 
   @type('number')
-  role: number
+  role = 0
 
   @type('boolean')
-  connected: boolean
+  connected = true
 
   @type('boolean')
-  hasBadge: boolean
+  hasBadge = false
 
   @type('boolean')
-  isAdmin: boolean
+  isAdmin = false
 
   @type('number')
-  remainingConnectionTime: number
+  remainingConnectionTime = 0
 
   @type(['string'])
   clues = new ArraySchema<string>()
@@ -35,47 +33,6 @@ export class Player extends Schema {
   constructor(id: string) {
     super()
     this.id = id
-    this.remainingConnectionTime = 0
-    this.clues = new ArraySchema<string>()
-    this.means = new ArraySchema<string>()
-    this.role = 0
-    this.hasBadge = false
-    this.connected = true
-    this.isAdmin = false
-    this.name = ''
-  }
-
-  removeCards() {
-    this.clues = this.clues.filter(() => false)
-    this.means = this.means.filter(() => false)
-    this.role = 0
-  }
-
-  giveCards(clues, means) {
-    this.clues.push(...clues)
-    this.means.push(...means)
-    this.hasBadge = true
-  }
-
-  setName(name) {
-    this.name = name
-  }
-
-  startReconnect = async (clock, reconnection, callback = () => {}) => {
-    this.remainingConnectionTime = RECONNECT_TIME
-    this.connected = false
-
-    this.leaveInterval = clock.setInterval(() => {
-      this.remainingConnectionTime -= 1
-      if (this.remainingConnectionTime === 0) {
-        this.leaveInterval && this.leaveInterval.clear()
-        reconnection.reject()
-        callback()
-      }
-    }, 1000)
-
-    await reconnection
-    this.leaveInterval && this.leaveInterval.clear()
-    this.connected = true
   }
 }
+

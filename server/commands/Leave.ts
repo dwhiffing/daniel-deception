@@ -1,10 +1,7 @@
 import { Command } from "@colyseus/command"
-import { Player, Table } from "../schema";
+import { RoomState } from "../schema"
 
-export class OnLeaveCommand extends Command<Table, {
-    playerId: string
-}> {
-
+export class LeaveCommand extends Command<RoomState, { playerId: string }> {
   execute({ playerId }) {
     // TODO: need to handle various state changes when players leave
     // if scientist or murderer leaves, end immediately
@@ -15,5 +12,4 @@ export class OnLeaveCommand extends Command<Table, {
       if (firstPlayer) firstPlayer.isAdmin = true
     }
   }
-
 }

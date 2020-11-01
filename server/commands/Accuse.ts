@@ -1,13 +1,12 @@
 import { Command } from "@colyseus/command"
-import { Player, Table } from "../schema";
-import { FinishGameCommand } from "./onFinish";
+import { RoomState } from "../schema"
+import { FinishGameCommand } from "./FinishGame"
 
-export class AccuseCommand extends Command<Table, {
+export class AccuseCommand extends Command<RoomState, {
     playerId: string,
     clue: string,
     means: string,
 }> {
-
   validate({ playerId, clue, means }) {
     const player = this.state.players.find(p => p.id === playerId)
     return typeof clue === 'string' && typeof means === 'string' && player.hasBadge
