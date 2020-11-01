@@ -1,12 +1,6 @@
 import { type, Schema, ArraySchema } from '@colyseus/schema'
 import { Delayed } from 'colyseus'
-import numeral from 'numeral'
-const RECONNECT_TIME = 30
-
-export const formatNumber = n =>
-  numeral(n)
-    .format('(0[.]00a)')
-    .toUpperCase()
+const RECONNECT_TIME = 120
 
 export class Player extends Schema {
   leaveInterval: Delayed
@@ -30,13 +24,7 @@ export class Player extends Schema {
   isAdmin: boolean
 
   @type('number')
-  seatIndex: number
-
-  @type('number')
   remainingConnectionTime: number
-
-  @type('number')
-  remainingMoveTime: number
 
   @type(['string'])
   clues = new ArraySchema<string>()
@@ -44,44 +32,29 @@ export class Player extends Schema {
   @type(['string'])
   means = new ArraySchema<string>()
 
-  constructor(id: string, opts) {
+  constructor(id: string) {
     super()
     this.id = id
     this.remainingConnectionTime = 0
-    this.remainingMoveTime = 0
-    this.seatIndex = -1
     this.clues = new ArraySchema<string>()
     this.means = new ArraySchema<string>()
     this.role = 0
     this.hasBadge = false
-
     this.connected = true
-    this.isAdmin = opts.isAdmin || false
-    this.name = opts.name || ''
+    this.isAdmin = false
+    this.name = ''
   }
 
   removeCards() {
     this.clues = this.clues.filter(() => false)
     this.means = this.means.filter(() => false)
+    this.role = 0
   }
 
   giveCards(clues, means) {
     this.clues.push(...clues)
     this.means.push(...means)
     this.hasBadge = true
-  }
-
-  sit(seatIndex) {
-    if (this.seatIndex > -1) return
-
-    this.seatIndex = seatIndex
-  }
-
-  stand() {
-    if (this.seatIndex === -1) return
-
-    this.removeCards()
-    this.seatIndex = -1
   }
 
   setName(name) {

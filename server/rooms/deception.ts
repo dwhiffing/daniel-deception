@@ -1,143 +1,88 @@
-import { Room, Delayed, Client } from 'colyseus'
-import { Player, Table } from '../schema'
-let dicussionInterval
+import { Room, Client, ServerError } from 'colyseus'
+import { Table } from '../schema'
+import { Dispatcher } from "@colyseus/command"
+import { OnJoinCommand } from '../commands/onJoin'
+import { OnLeaveCommand } from '../commands/onLeave'
+import { DealCommand } from '../commands/onDeal'
+import { MurderCommand } from '../commands/onMurder'
+import { AccuseCommand } from '../commands/onAccuse'
+import { FinishGameCommand } from '../commands/onFinish'
+import { MarkEvidenceCommand } from '../commands/onEvidence'
+import { AssignScientistCommand } from '../commands/AssignScientist'
+
 export class Deception extends Room<Table> {
   maxClients = 15
-  leaveInterval: Delayed
-  moveTimeout: Delayed
+  dispatcher = new Dispatcher(this);
 
   onCreate(options) {
     this.setState(new Table())
+
+    this.onMessage('*', (client, action, data) => {
+      const playerId = client.sessionId
+      const player = this.state.players.find(p => p.id === playerId)
+      const { clue, means, type, value } = data
+
+      if (action === 'deal') {
+        this.dispatcher.dispatch(new DealCommand(), { playerId })
+      } else if (action === 'setScientist') {
+        this.dispatcher.dispatch(new AssignScientistCommand(), { playerId: data.playerId })
+      } else if (action === 'markScene') {
+        this.dispatcher.dispatch(new MarkEvidenceCommand(), { playerId, type, value })
+      } else if (action === 'murder') {
+        this.dispatcher.dispatch(new MurderCommand(), { playerId, clue, means })
+      } else if (action === 'accuse') {
+        this.dispatcher.dispatch(new AccuseCommand(), { playerId, clue, means })
+      } else if (action === 'setName') {
+        player && player.setName(data.name)
+      }
+    })
+
+    this.clock.setInterval(() => {
+      if (this.state.phaseIndex !== 2) return
+
+      if (this.state.phaseTimer > 1) {
+        this.state.phaseTimer -= 1
+      } else {
+        if (this.state.roundsLeft > 0) {
+          this.state.roundsLeft -= 1
+          this.state.phaseIndex = 1
+        } else {
+          this.dispatcher.dispatch(new FinishGameCommand(), { message: 'The murderers won!' })
+        }
+      }
+    }, 1000)
 
     if (options && options.roomName) {
       this.setMetadata({ roomName: options.roomName })
     }
   }
 
-  onJoin(client: Client) {
-    if (this.getPlayer(client.sessionId)) return
+  onAuth(client: Client) {
+    if (this.state.phaseIndex !== -1)
+      throw new ServerError(400, "Game in Progress");
+    
+    if (this.state.players.length >= 10)
+      throw new ServerError(400, "Too many players");
 
-    const player = new Player(client.sessionId, { clock: this.clock })
-    if (!this.state.players.find(p => p.isAdmin)) {
-      player.isAdmin = true
-    }
-    this.state.players.push(player)
+    return true
   }
 
-  onMessage(client: Client, data: any) {
-    const player = this.getPlayer(client.sessionId)
-    if (!player) return null
-    
-    const eligiblePlayers = this.getSeatedPlayers()
-    const canDeal = eligiblePlayers.length >= 4 && this.state.players.find(p => p.role === 1)
-    console.log(data, player.role)
-
-    if (data.action === 'deal' && canDeal) {
-      this.state.deal()
-    } else if (data.action === 'setScientist') {
-      if (typeof data.playerId === 'string') {
-        this.state.players.forEach( p => p.role = 0)
-        const player = this.getPlayer(data.playerId)
-        player.role = 1
-      }
-    } else if (data.action === 'markScene' && player.role === 1 && this.state.phaseIndex === 1) {
-      if (typeof data.type === 'string' && typeof data.value === 'string') {
-        this.markScene(data.type, data.value)
-      }
-    } else if (data.action === 'murder' && player.role === 2) {
-      if (typeof data.clue === 'string' && typeof data.means === 'string') {
-        this.state.murder(data.clue, data.means)
-      }
-    } else if (data.action === 'accuse') {
-      if (typeof data.clue === 'string' && typeof data.means === 'string') {
-        this.state.accuse(player, data.clue, data.means, () => {
-          if (dicussionInterval) dicussionInterval.clear()
-        })
-      }
-    } else if (data.action === 'sit') {
-      if (typeof data.seatIndex === 'number') {
-        player.sit(data.seatIndex)
-      }
-      this.sitInAvailableSeat(player)
-    } else if (data.action === 'setName') {
-      player.setName(data.name)
-    }
+  onJoin(client: Client) {
+    const playerId = client.sessionId
+    this.dispatcher.dispatch(new OnJoinCommand(), { playerId })
   }
 
   onLeave = async (client, consented) => {
-    const player = this.getPlayer(client.sessionId)
-    if (!player) {
-      return
-    }
-
-    this.unlock()
+    const playerId = client.sessionId
+    const player = this.state.players.find(p => p.id === playerId)
+    if (!player) return
 
     if (consented) {
-      this.removePlayer(player)
-      return
-    }
-
-    player.startReconnect(this.clock, this.allowReconnection(client), () => {
-      this.removePlayer(player)
-    })
-  }
-
-  removePlayer(player) {
-    this.state.players = this.state.players.filter(p => p.id !== player.id)
-    if (!this.state.players.find(p => p.isAdmin)) {
-      const firstPlayer = this.state.players[0]
-      if (firstPlayer) firstPlayer.isAdmin = true
-    }
-  }
-
-  sitInAvailableSeat = player => {
-    const takenSeats = this.getSeatedPlayers().map(p => p.seatIndex)
-    const availableSeats = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(
-      n => !takenSeats.includes(n),
-    )
-    const availableSeat = availableSeats[0]
-    if (typeof availableSeat === 'number') {
-      player.sit(availableSeat)
-    }
-  }
-
-  getPlayers = () =>
-    [...this.state.players.values()].sort((a, b) => a.seatIndex - b.seatIndex)
-
-  getPlayer = sessionId => this.getPlayers().find(p => p.id === sessionId)
-
-  getActivePlayers = () => this.getSeatedPlayers()
-
-  getSeatedPlayers = ({ getDealerIndex = false } = {}) => {
-    const sortedPlayers = this.getPlayers().filter(p => p.seatIndex > -1)
-    return sortedPlayers
-  }
-
-  markScene = (type, value) => {
-    this.state.mark(type, value)
-
-    const markedCardsLength = this.state.activeScene.filter(c => c.markedValueIndex > -1).length
-
-    if (markedCardsLength === this.state.activeScene.length - this.state.roundsLeft) {
-      if (dicussionInterval) dicussionInterval.clear()
-
-      this.state.phaseIndex = 2
-      
-      dicussionInterval = this.clock.setInterval(() => {
-        if (this.state.phaseTimer > 1) {
-          this.state.phaseTimer -= 1
-        } else {
-          dicussionInterval.clear()
-
-          if (this.state.roundsLeft > 0) {
-            this.state.roundsLeft -= 1
-            this.state.phaseIndex = 1
-            this.state.phaseTimer = 60 + this.state.timerMax * this.state.players.length
-          } else {
-            this.state.endGame('The murderers won!')
-          }
-        }
-      }, 1000)
+      this.dispatcher.dispatch(new OnLeaveCommand(), { playerId })
+    } else {
+      player.startReconnect(this.clock, this.allowReconnection(client), () => 
+        this.dispatcher.dispatch(new OnLeaveCommand(), { playerId })
+      )
     }
   }
 }

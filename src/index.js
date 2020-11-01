@@ -6,9 +6,9 @@ import { Client } from 'colyseus.js'
 // TODO: show guess made on each player
 // TODO: show if guess had at least one component correct
 // TODO: Ensure players don't leave if their phone sleeps
-// TODO: Ensure players joining/leaving don't shift player state
-// TODO: Allow players to leave game in progress
-// TODO: ensure that reporting player always works
+// TODO: Allow configuration of reconnect time, phaseTimer, number of cards dealt
+// TODO: Send evidence marking over server with player color?
+// TODO: Ensure all secrets are removed?
 
 window.colyseus = new Client(
   process.env.NODE_ENV === 'production'

@@ -4,11 +4,6 @@ import { Flex } from '.'
 import faker from 'faker'
 import truncate from 'lodash/truncate'
 
-const saveRoom = (room, name) => {
-  localStorage.setItem('name', name)
-  localStorage.setItem(room.id, room.sessionId)
-}
-
 const joinRoomWithReconnect = async (roomId) => {
   let room,
     sessionId = localStorage.getItem(roomId)
@@ -17,9 +12,9 @@ const joinRoomWithReconnect = async (roomId) => {
     try {
       room = await window.colyseus.reconnect(roomId, sessionId)
     } catch (e) {}
+  } else {
+    room = room || (await window.colyseus.joinById(roomId))
   }
-
-  room = room || (await window.colyseus.joinById(roomId))
 
   return room
 }
@@ -27,46 +22,57 @@ const joinRoomWithReconnect = async (roomId) => {
 const AUTOCONNECT = true
 
 export function Lobby({ setRoom }) {
+  const intervalRef = useRef()
+  const autoConnectAttempted = useRef(false)
   const [availableRooms, setAvailableRooms] = useState([])
   const [name, setName] = useState(
     localStorage.getItem('name') || faker.name.firstName(),
   )
-  const intervalRef = useRef()
-  const autoConnectAttempted = useRef(false)
+
+  const enterRoom = useCallback(
+    (room, name) => {
+      localStorage.setItem('name', name)
+      localStorage.setItem(room.id, room.sessionId)
+      setRoom(room)
+      room.send('setName', { name })
+    },
+    [setRoom],
+  )
 
   const createRoom = useCallback(
     async (name) => {
       const roomName = prompt('Room name?')
-      if (!roomName) return
-
-      const room = await window.colyseus.create('deception', { roomName })
-      saveRoom(room, name)
-      room.send({ action: 'setName', name })
-      room.send({ action: 'sit' })
-      setRoom(room)
+      if (roomName) {
+        const room = await window.colyseus.create('deception', { roomName })
+        enterRoom(room, name)
+      }
     },
-    [setRoom],
+    [enterRoom],
   )
 
   const joinRoom = useCallback(
     async (roomId, name) => {
-      const room = await joinRoomWithReconnect(roomId)
-      if (!room) {
-        alert('Failed to join room')
-        return
+      let room
+      try {
+        room = await joinRoomWithReconnect(roomId)
+        if (room) {
+          enterRoom(room, name)
+        } else {
+          alert('Failed to join room')
+          localStorage.removeItem(roomId)
+        }
+      } catch (e) {
+        alert(e)
+        localStorage.removeItem(roomId)
       }
-      saveRoom(room, name)
-      room.send({ action: 'setName', name })
-      room.send({ action: 'sit' })
-      setRoom(room)
     },
-    [setRoom],
+    [enterRoom],
   )
 
-  const getAvailableRooms = useCallback(async () => {
-    const rooms = await window.colyseus.getAvailableRooms()
-    setAvailableRooms(rooms)
-  }, [])
+  const getAvailableRooms = useCallback(
+    async () => setAvailableRooms(await window.colyseus.getAvailableRooms()),
+    [],
+  )
 
   useEffect(() => {
     getAvailableRooms()

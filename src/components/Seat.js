@@ -8,6 +8,7 @@ export const Seat = ({
   sendAction,
   player,
   currentPlayer,
+
   phaseIndex,
   selectedClue,
   setSelectedClue,
@@ -15,7 +16,17 @@ export const Seat = ({
   setSelectedMeans,
   style = {},
 }) => {
-  const { id, clues, role, means, isClient, index, name } = player
+  const {
+    id,
+    clues,
+    role,
+    means,
+    isClient,
+    index,
+    name,
+    remainingConnectionTime,
+    connected,
+  } = player
 
   const canSelect =
     (phaseIndex === 0 &&
@@ -37,7 +48,14 @@ export const Seat = ({
     >
       <Typography variant={isClient ? 'h5' : 'body1'}>
         {isClient ? `You (${name || id})` : name || id}
+        {role === 1 ? ' (Scientist)' : ''}
       </Typography>
+
+      {!connected && (
+        <Typography>
+          Disconnected! ({remainingConnectionTime} seconds to reconnect)
+        </Typography>
+      )}
 
       <Flex variant="justify-between">
         {means.map((means, index) => (

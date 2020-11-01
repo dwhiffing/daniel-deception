@@ -5,24 +5,28 @@ import { Actions } from './Actions'
 import { Card } from './Card'
 import { Seat } from './Seat'
 
-// TODO: Send evidence marking over server with player color?
-// TODO: Ensure all secrets are removed
-
-export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
+export function Room({
+  players = [],
+  activeCrime = [],
+  activeScene = [],
+  room,
+  roundsLeft = -1,
+  phaseIndex = -1,
+  phaseTimer = -1,
+  message = '',
+}) {
   const [selectedMeans, setSelectedMeans] = useState()
   const [selectedClue, setSelectedClue] = useState()
   const currentPlayer = players.find((p) => p.id === room.sessionId) || {}
-  let scientist = players.find((p) => p.role === 1)
-  let scientistLabel = scientist ? scientist.name : 'none'
+  const scene = activeScene.slice(0, activeScene.length - roundsLeft)
+  const crime = activeCrime
 
   useEffect(() => {
     setSelectedMeans()
     setSelectedClue()
   }, [phaseIndex])
 
-  if (scientist === currentPlayer) scientistLabel = `You (${scientist.name})`
-
-  const sendAction = (action, rest = {}) => room.send({ action, ...rest })
+  const sendAction = (action, rest = {}) => room.send(action, rest)
   return (
     <Flex variant="column" style={{ paddingTop: 70, paddingBottom: 200 }}>
       <Header
@@ -38,10 +42,6 @@ export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
         {(phaseIndex === 1 || phaseIndex === 2) && (
           <Scene player={currentPlayer} scene={scene} sendAction={sendAction} />
         )}
-
-        <Typography align="center">
-          Forensic Scientist: {scientistLabel}
-        </Typography>
 
         {(phaseIndex === 2 ||
           phaseIndex === -1 ||
@@ -66,7 +66,7 @@ export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
                 index,
                 isClient: p.id === room.sessionId,
               }))
-              .filter((p) => p.role !== 1)}
+              .sort((a, b) => (a.role === 1 ? -1 : 1))}
           />
         )}
       </Flex>
@@ -75,6 +75,7 @@ export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
         room={room}
         players={players}
         crime={crime}
+        message={message}
         phaseIndex={phaseIndex}
         selectedMeans={selectedMeans}
         selectedClue={selectedClue}
@@ -99,7 +100,7 @@ const Header = ({ phaseIndex, phaseTimer, onLeave }) => (
   >
     <Button onClick={onLeave}>Leave</Button>
     <span style={{ minWidth: 50 }}>{PHASES[phaseIndex + 1]}</span>
-    <span style={{ minWidth: 50 }}>{phaseTimer}</span>
+    <span style={{ minWidth: 50 }}>{phaseIndex === 2 ? phaseTimer : ''}</span>
   </Flex>
 )
 
