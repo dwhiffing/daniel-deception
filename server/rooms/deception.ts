@@ -84,6 +84,10 @@ export class Deception extends Room<Table> {
 
   removePlayer(player) {
     this.state.players = this.state.players.filter(p => p.id !== player.id)
+    if (!this.state.players.find(p => p.isAdmin)) {
+      const firstPlayer = this.state.players[0]
+      if (firstPlayer) firstPlayer.isAdmin = true
+    }
   }
 
   sitInAvailableSeat = player => {
