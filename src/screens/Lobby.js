@@ -5,7 +5,7 @@ import faker from 'faker'
 import truncate from 'lodash/truncate'
 
 // TODO: show number of players in game, show if game is in progress and what phase
-const joinRoomWithReconnect = async (roomId) => {
+const joinRoomWithReconnect = async (roomId, name) => {
   let room,
     sessionId = localStorage.getItem(roomId)
 
@@ -14,7 +14,7 @@ const joinRoomWithReconnect = async (roomId) => {
       room = await window.colyseus.reconnect(roomId, sessionId)
     } catch (e) {}
   } else {
-    room = room || (await window.colyseus.joinById(roomId))
+    room = room || (await window.colyseus.joinById(roomId, { name }))
   }
 
   return room
@@ -35,7 +35,6 @@ export function Lobby({ setRoom }) {
       localStorage.setItem('name', name)
       localStorage.setItem(room.id, room.sessionId)
       setRoom(room)
-      room.send('SetName', { name })
     },
     [setRoom],
   )
@@ -44,7 +43,10 @@ export function Lobby({ setRoom }) {
     async (name) => {
       const roomName = prompt('Room name?')
       if (roomName) {
-        const room = await window.colyseus.create('deception', { roomName })
+        const room = await window.colyseus.create('deception', {
+          roomName,
+          name,
+        })
         enterRoom(room, name)
       }
     },
@@ -55,7 +57,7 @@ export function Lobby({ setRoom }) {
     async (roomId, name) => {
       let room
       try {
-        room = await joinRoomWithReconnect(roomId)
+        room = await joinRoomWithReconnect(roomId, name)
         if (room) {
           enterRoom(room, name)
         } else {

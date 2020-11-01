@@ -33,9 +33,9 @@ export class DeceptionRoom extends Room<RoomState> {
     return true
   }
 
-  onJoin(client: Client) {
+  onJoin(client: Client, options) {
     const playerId = client.sessionId
-    this.dispatcher.dispatch(new Commands.JoinCommand(), { playerId })
+    this.dispatcher.dispatch(new Commands.JoinCommand(), { playerId, ...options })
   }
 
   onLeave = async (client, consented) => {
