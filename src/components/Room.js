@@ -1,12 +1,10 @@
-import { Typography } from '@material-ui/core'
+import { Button, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { Flex } from '.'
 import { Actions } from './Actions'
 import { Card } from './Card'
 import { Seat } from './Seat'
 
-// TODO: Ensure that evidence phases have extra cards drawn
-// TODO: Hide players for scientist when marking evidence
 // TODO: Send evidence marking over server with player color?
 // TODO: Ensure all secrets are removed
 
@@ -16,7 +14,6 @@ export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
   const currentPlayer = players.find((p) => p.id === room.sessionId) || {}
   let scientist = players.find((p) => p.role === 1)
   let scientistLabel = scientist ? scientist.name : 'none'
-  let murderer = players.find((p) => p.role === 2)
 
   useEffect(() => {
     setSelectedMeans()
@@ -27,8 +24,15 @@ export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
 
   const sendAction = (action, rest = {}) => room.send({ action, ...rest })
   return (
-    <Flex variant="column" style={{ paddingTop: 50, paddingBottom: 200 }}>
-      <Header phaseIndex={phaseIndex} phaseTimer={phaseTimer} />
+    <Flex variant="column" style={{ paddingTop: 70, paddingBottom: 200 }}>
+      <Header
+        onLeave={() => {
+          localStorage.removeItem(room.id)
+          room.leave()
+        }}
+        phaseIndex={phaseIndex}
+        phaseTimer={phaseTimer}
+      />
 
       <Flex variant="column">
         {(phaseIndex === 1 || phaseIndex === 2) && (
@@ -79,10 +83,10 @@ export function Room({ players, crime, scene, room, phaseIndex, phaseTimer }) {
   )
 }
 
-const Header = ({ phaseIndex, phaseTimer }) => (
+const Header = ({ phaseIndex, phaseTimer, onLeave }) => (
   <Flex
     flex={0}
-    variant="row justify-between"
+    variant="row align-center justify-between"
     style={{
       padding: 10,
       borderBottom: '1px solid gray',
@@ -93,7 +97,7 @@ const Header = ({ phaseIndex, phaseTimer }) => (
       backgroundColor: 'white',
     }}
   >
-    <span style={{ minWidth: 50 }}>Deception</span>
+    <Button onClick={onLeave}>Leave</Button>
     <span style={{ minWidth: 50 }}>{PHASES[phaseIndex + 1]}</span>
     <span style={{ minWidth: 50 }}>{phaseTimer}</span>
   </Flex>
