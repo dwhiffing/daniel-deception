@@ -19,10 +19,11 @@ export class DeceptionRoom extends Room<RoomState> {
       Command && this.dispatcher.dispatch(new Command(), data)
     })
     
-    this.clock.setInterval(() => 
-      this.dispatcher.dispatch(new Commands.TickCommand()),
-      1000,
-    )
+    this.clock.setInterval(() => {
+      try {
+        this.dispatcher.dispatch(new Commands.TickCommand())
+      } catch(e) {}
+    }, 1000)
   }
 
   onAuth() {
