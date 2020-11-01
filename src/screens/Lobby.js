@@ -1,26 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Box, Typography, Button, TextField } from '@material-ui/core'
+import { Box, Typography, TextField } from '@material-ui/core'
 import { Flex } from '../components/Flex'
 import faker from 'faker'
 import truncate from 'lodash/truncate'
+import { Action } from '../components/Action'
 
 // TODO: show number of players in game, show if game is in progress and what phase
-const joinRoomWithReconnect = async (roomId, name) => {
-  let room,
-    sessionId = localStorage.getItem(roomId)
-
-  if (sessionId) {
-    try {
-      room = await window.colyseus.reconnect(roomId, sessionId)
-    } catch (e) {}
-  } else {
-    room = room || (await window.colyseus.joinById(roomId, { name }))
-  }
-
-  return room
-}
-
-const AUTOCONNECT = true
 
 export function Lobby({ setRoom }) {
   const intervalRef = useRef()
@@ -42,28 +27,21 @@ export function Lobby({ setRoom }) {
   const createRoom = useCallback(
     async (name) => {
       const roomName = prompt('Room name?')
-      if (roomName) {
-        const room = await window.colyseus.create('deception', {
-          roomName,
-          name,
-        })
-        enterRoom(room, name)
-      }
+      if (!roomName) return
+
+      const colyseus = window.colyseus
+      const room = await colyseus.create('deception', { roomName, name })
+      enterRoom(room, name)
     },
     [enterRoom],
   )
 
   const joinRoom = useCallback(
     async (roomId, name) => {
-      let room
       try {
-        room = await joinRoomWithReconnect(roomId, name)
-        if (room) {
-          enterRoom(room, name)
-        } else {
-          alert('Failed to join room')
-          localStorage.removeItem(roomId)
-        }
+        const room = await joinRoomWithReconnect(roomId, name)
+        if (!room) throw new Error('Failed to join room')
+        enterRoom(room, name)
       } catch (e) {
         alert(e)
         localStorage.removeItem(roomId)
@@ -84,15 +62,14 @@ export function Lobby({ setRoom }) {
   }, [getAvailableRooms])
 
   useEffect(() => {
-    if (availableRooms) {
-      const lastRoom = availableRooms.find((room) =>
-        localStorage.getItem(room.roomId),
-      )
+    if (!availableRooms) return
+    const lastRoom = availableRooms.find((room) =>
+      localStorage.getItem(room.roomId),
+    )
 
-      if (AUTOCONNECT && lastRoom && !autoConnectAttempted.current) {
-        autoConnectAttempted.current = true
-        joinRoom(lastRoom.roomId, name)
-      }
+    if (lastRoom && !autoConnectAttempted.current) {
+      autoConnectAttempted.current = true
+      joinRoom(lastRoom.roomId, name)
     }
   }, [availableRooms, joinRoom, name])
 
@@ -101,16 +78,18 @@ export function Lobby({ setRoom }) {
       <TextField
         placeholder="Enter name"
         value={name}
+        style={{ marginBottom: 20 }}
         onChange={(e) =>
           setName(truncate(e.target.value, { length: 10, omission: '' }))
         }
-        style={{ marginBottom: 20 }}
       />
 
       <Typography variant="h5">Available Tables:</Typography>
 
       <Flex flex={0} variant="column center" style={{ minHeight: 200 }}>
-        {availableRooms.length === 0 && <EmptyState />}
+        {availableRooms.length === 0 && (
+          <Typography>No rooms available</Typography>
+        )}
 
         {availableRooms.map((room) => (
           <RoomListItem
@@ -121,9 +100,7 @@ export function Lobby({ setRoom }) {
         ))}
       </Flex>
 
-      <Button variant="contained" onClick={() => createRoom(name)}>
-        Create room
-      </Button>
+      <Action onClick={() => createRoom(name)}>Create room</Action>
     </Flex>
   )
 }
@@ -139,4 +116,17 @@ const RoomListItem = ({ room, onClick }) => (
   </Box>
 )
 
-const EmptyState = () => <Typography>No rooms available</Typography>
+const joinRoomWithReconnect = async (roomId, name) => {
+  let room,
+    sessionId = localStorage.getItem(roomId)
+
+  if (sessionId) {
+    try {
+      room = await window.colyseus.reconnect(roomId, sessionId)
+    } catch (e) {}
+  } else {
+    room = room || (await window.colyseus.joinById(roomId, { name }))
+  }
+
+  return room
+}

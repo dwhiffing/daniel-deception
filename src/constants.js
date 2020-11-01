@@ -4,6 +4,7 @@ export const PHASES = [
   'EVIDENCE PHASE',
   'PRESENTATION PHASE',
 ]
+
 export const COLORS = [
   '#0071AA',
   '#ECE4B7',

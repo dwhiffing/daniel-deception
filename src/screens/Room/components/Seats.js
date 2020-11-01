@@ -1,12 +1,22 @@
 import React from 'react'
-import { Typography } from '@material-ui/core'
 import { Flex } from '../../../components/Flex'
+import { Typography } from '@material-ui/core'
 import { COLORS } from '../../../constants'
 import { Action } from '../../../components/Action'
 import { CardStack } from '../../../components/CardStack'
 
 // TODO: show guess made on each player
-export const Seat = ({ player, index, phase, role, ...state }) => {
+
+export const Seats = (props) =>
+  props.renderSeats && (
+    <Flex flex={2} variant="column">
+      {props.players.map((player, i) => (
+        <Seat key={`p${i}`} player={player} index={i} {...props} />
+      ))}
+    </Flex>
+  )
+
+const Seat = ({ player, index, phase, role, ...state }) => {
   const showSetScientistButton = state.currentPlayer.isAdmin && phase === -1
   const playerId = player.id
   const label = player.name || player.id

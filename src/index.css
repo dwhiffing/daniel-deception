@@ -18,3 +18,10 @@
   left: 0;
   right: 0;
 }
+
+.card {
+  margin: 2px;
+  padding: 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
