@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { Room } from './screens/Room'
 import { Lobby } from './screens/Lobby'
 import { Client } from 'colyseus.js'
+import './index.css'
 
 window.colyseus = new Client(
   process.env.NODE_ENV === 'production'

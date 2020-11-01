@@ -1,3 +1,9 @@
+export const PHASES = [
+  'PRE-GAME',
+  'MURDER PHASE',
+  'EVIDENCE PHASE',
+  'PRESENTATION PHASE',
+]
 export const COLORS = [
   '#0071AA',
   '#ECE4B7',

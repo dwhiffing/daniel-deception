@@ -3,6 +3,8 @@ import { RoomState } from '../schema'
 import { Dispatcher } from "@colyseus/command"
 import * as Commands from '../commands'
 
+// TODO: show if guess had at least one component correct
+
 export class DeceptionRoom extends Room<RoomState> {
   maxClients = 10
   dispatcher = new Dispatcher(this)
@@ -11,7 +13,7 @@ export class DeceptionRoom extends Room<RoomState> {
     this.setState(new RoomState())
     this.setMetadata({ roomName })
 
-    this.onMessage('*', (client, action, _data) => {
+    this.onMessage('*', (client, action, _data = {}) => {
       const data = { ..._data, playerId: _data.playerId || client.sessionId }
       const Command = Commands[action + 'Command']
       Command && this.dispatcher.dispatch(new Command(), data)
