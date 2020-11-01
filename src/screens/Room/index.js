@@ -1,25 +1,37 @@
-import { Button, Typography } from '@material-ui/core'
+import { Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { Flex } from '.'
+import { Flex } from '../../components/Flex'
 import { Actions } from './Actions'
-import { Card } from './Card'
+import { Card } from '../../components/Card'
 import { Seat } from './Seat'
+import { Header } from './Header'
 
-export function Room({
-  players = [],
-  activeCrime = [],
-  activeScene = [],
-  room,
-  roundsLeft = -1,
-  phaseIndex = -1,
-  phaseTimer = -1,
-  message = '',
-}) {
+export function Room({ room, setRoom }) {
+  const [serverState, setServerState] = useState({})
   const [selectedMeans, setSelectedMeans] = useState()
   const [selectedClue, setSelectedClue] = useState()
+
+  const {
+    players = [],
+    activeCrime = [],
+    activeScene = [],
+    roundsLeft = -1,
+    phaseIndex = -1,
+    phaseTimer = -1,
+    message = '',
+  } = serverState
   const currentPlayer = players.find((p) => p.id === room.sessionId) || {}
   const scene = activeScene.slice(0, activeScene.length - roundsLeft)
-  const crime = activeCrime
+
+  useEffect(() => {
+    if (!room) return
+
+    room.onStateChange((state) => setServerState({ ...state }))
+    room.onLeave(() => {
+      setServerState({})
+      setRoom()
+    })
+  }, [room, setRoom])
 
   useEffect(() => {
     setSelectedMeans()
@@ -74,7 +86,7 @@ export function Room({
       <Actions
         room={room}
         players={players}
-        crime={crime}
+        crime={activeCrime}
         message={message}
         phaseIndex={phaseIndex}
         selectedMeans={selectedMeans}
@@ -83,26 +95,6 @@ export function Room({
     </Flex>
   )
 }
-
-const Header = ({ phaseIndex, phaseTimer, onLeave }) => (
-  <Flex
-    flex={0}
-    variant="row align-center justify-between"
-    style={{
-      padding: 10,
-      borderBottom: '1px solid gray',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: 'white',
-    }}
-  >
-    <Button onClick={onLeave}>Leave</Button>
-    <span style={{ minWidth: 50 }}>{PHASES[phaseIndex + 1]}</span>
-    <span style={{ minWidth: 50 }}>{phaseIndex === 2 ? phaseTimer : ''}</span>
-  </Flex>
-)
 
 const Scene = (props) => (
   <Flex variant="column justify-between" style={{ flexWrap: 'wrap' }}>
@@ -147,7 +139,7 @@ const Seats = ({ players, ...props }) => (
   </Flex>
 )
 
-const PHASES = [
+export const PHASES = [
   'PRE-GAME',
   'MURDER PHASE',
   'EVIDENCE PHASE',

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Typography } from '@material-ui/core'
-import { Flex } from '.'
-import { Card } from './Card'
+import { Card } from '../../components/Card'
+import { Flex } from '../../components/Flex'
 
 export const Seat = ({
   showSetScientistButton,
@@ -91,10 +91,6 @@ export const Seat = ({
           Assign Forensic Scientist
         </Button>
       )}
-
-      {/* <TimeChip
-              time={!connected ? remainingConnectionTime : remainingMoveTime}
-            /> */}
     </Flex>
   ) : null
 }

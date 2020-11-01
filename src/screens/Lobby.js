@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Box, Typography, Button, TextField } from '@material-ui/core'
-import { Flex } from '.'
+import { Flex } from '../components/Flex'
 import faker from 'faker'
 import truncate from 'lodash/truncate'
 
+// TODO: show number of players in game, show if game is in progress and what phase
 const joinRoomWithReconnect = async (roomId) => {
   let room,
     sessionId = localStorage.getItem(roomId)
