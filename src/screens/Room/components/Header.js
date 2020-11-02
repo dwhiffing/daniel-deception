@@ -6,7 +6,7 @@ import { PHASES } from '../../../constants'
 
 export const Header = (props) => (
   <Flex className="header" variant="row align-center justify-between">
-    <Action onClick={props.leave}>Leave</Action>
+    <Action onClick={props.room.leave.bind(props.room)}>Leave</Action>
 
     <Typography style={{ minWidth: 50 }}>{PHASES[props.phase + 1]}</Typography>
 
