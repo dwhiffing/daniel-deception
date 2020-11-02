@@ -1,10 +1,12 @@
 import React from 'react'
 import { Flex } from '../../../components/Flex'
 import { Action } from '../../../components/Action'
+import { Typography } from '@material-ui/core'
 
 export const Actions = (props) => (
   <Flex flex={0} variant="center" className="actions" zIndex={100}>
-    <Flex variant="column center">
+    {console.log(props)}
+    <Flex variant="column center" style={{ padding: '4px 0' }}>
       {props.phase === -1 && <PreGameActions {...props} />}
       {props.phase === 0 && <MurderActions {...props} />}
       {props.phase === 1 && <EvidenceActions {...props} />}
@@ -30,16 +32,16 @@ const MurderActions = ({ currentPlayer, selectedMeans, selectedClue, room }) =>
   currentPlayer.role === 2 ? (
     <Flex variant="column center">
       {(!selectedMeans || !selectedClue) && (
-        <p>
+        <Typography>
           Select one of your Red Means cards and Blue Clue cards to plan the
           murder.
-        </p>
+        </Typography>
       )}
       {selectedMeans && selectedClue && (
-        <p>
+        <Typography>
           You will kill the victim using {selectedMeans} and leave behind{' '}
           {selectedClue} as evidence.
-        </p>
+        </Typography>
       )}
       <Action
         disabled={!selectedMeans || !selectedClue}
@@ -54,45 +56,61 @@ const MurderActions = ({ currentPlayer, selectedMeans, selectedClue, room }) =>
       </Action>
     </Flex>
   ) : (
-    <p>The murder is currently happening</p>
+    <Typography>The murder is currently happening</Typography>
   )
 
 const EvidenceActions = ({ currentPlayer, activeCrime }) =>
   currentPlayer.role === 1 ? (
-    <p>
+    <Typography>
       Mark the crime scene based on the means {activeCrime[1]} and the clue{' '}
       {activeCrime[0]}
-    </p>
+    </Typography>
   ) : (
-    <p>The Forensic Scientist is investigating</p>
+    <Typography>The Forensic Scientist is investigating</Typography>
   )
 
 const PresentationActions = ({
   currentPlayer,
   selectedClue,
+  activeCrime,
   selectedMeans,
   room,
-}) => (
-  <>
-    <p>
-      Discuss the clues given by Forensics to determine the murderer, and via
-      which means (Red) and key evidence (Blue). You only get one chance to
-      accuse!
-    </p>
-    {currentPlayer.hasBadge && (
-      <Flex variant="column center">
-        <Action
-          disabled={!selectedMeans || !selectedClue}
-          onClick={() => {
-            room.send('Accuse', {
-              means: selectedMeans,
-              clue: selectedClue,
-            })
-          }}
-        >
-          Accuse
-        </Action>
-      </Flex>
-    )}
-  </>
-)
+  role,
+}) =>
+  role !== 1 ? (
+    <>
+      {role === 2 ? (
+        <Typography>
+          You are the murderer. You killed the victim using {activeCrime[1]} and
+          left behind {activeCrime[1]} as evidence. Try to convince the others
+          it wasn't you
+        </Typography>
+      ) : (
+        <Typography>
+          Discuss the clues given by Forensics to determine the murderer, and
+          via which means (Red) and key evidence (Blue). You only get one chance
+          to accuse!
+        </Typography>
+      )}
+      {currentPlayer.guess.length === 0 && (
+        <Flex variant="column center">
+          <Action
+            disabled={!selectedMeans || !selectedClue}
+            onClick={() => {
+              room.send('Accuse', {
+                means: selectedMeans,
+                clue: selectedClue,
+              })
+            }}
+          >
+            Accuse
+          </Action>
+        </Flex>
+      )}
+    </>
+  ) : (
+    <Typography>
+      Plan your next clue based on how the investigators responded to your last
+      one!
+    </Typography>
+  )

@@ -5,8 +5,6 @@ import { COLORS } from '../../../constants'
 import { Action } from '../../../components/Action'
 import { CardStack } from '../../../components/CardStack'
 
-// TODO: show guess made on each player
-
 export const Seats = (props) =>
   props.renderSeats && (
     <Flex flex={2} variant="column">
@@ -32,12 +30,20 @@ const Seat = ({ player, index, phase, role, ...state }) => {
 
   return playerId ? (
     <Flex variant="column" style={style}>
-      <Typography
-        variant={playerId === state.currentPlayer.id ? 'h5' : 'body1'}
-      >
-        {playerId === state.currentPlayer.id ? `You (${label})` : label}
-        {player.role === 1 ? ' (Scientist)' : ''}
-      </Typography>
+      <Flex>
+        <Typography
+          variant={playerId === state.currentPlayer.id ? 'h5' : 'body1'}
+        >
+          {playerId === state.currentPlayer.id ? `You (${label})` : label}
+          {player.role === 1 ? ' (Scientist)' : ''}
+        </Typography>
+
+        {player.guess && player.guess.length > 0 && (
+          <Typography style={{ margin: '0 10px 10px', color: 'gray' }}>
+            They guessed {player.guess[0]} and {player.guess[1]}
+          </Typography>
+        )}
+      </Flex>
 
       {!player.connected && (
         <Typography>

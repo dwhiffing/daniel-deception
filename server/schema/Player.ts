@@ -16,13 +16,13 @@ export class Player extends Schema {
   connected = true
 
   @type('boolean')
-  hasBadge = false
-
-  @type('boolean')
   isAdmin = false
 
   @type('number')
   remainingConnectionTime = 0
+
+  @type(['string'])
+  guess = new ArraySchema<string>()
 
   @type(['string'])
   clues = new ArraySchema<string>()

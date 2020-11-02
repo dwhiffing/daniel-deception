@@ -5,6 +5,8 @@ import { SceneCard } from '../schema/SceneCard'
 import { ArraySchema } from '@colyseus/schema'
 import shuffle from 'lodash/shuffle'
 
+const numCards = 3
+
 export class DealCommand extends Command<RoomState> {
   validate() {
     return (
@@ -30,9 +32,9 @@ export class DealCommand extends Command<RoomState> {
     if (murderer) murderer.role = 2
     
     detectives.forEach(p => {
-      p.clues.push(...this.state.clueDeck.splice(0, 4))
-      p.means.push(...this.state.meansDeck.splice(0, 4))
-      p.hasBadge = true
+      p.clues.push(...this.state.clueDeck.splice(0, numCards))
+      p.means.push(...this.state.meansDeck.splice(0, numCards))
+      p.guess = p.guess.filter(() => false)
     })
     
     this.state.sceneDeck = new ArraySchema<SceneCard>()

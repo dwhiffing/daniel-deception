@@ -3,8 +3,6 @@ import { RoomState } from '../schema'
 import { Dispatcher } from "@colyseus/command"
 import * as Commands from '../commands'
 
-// TODO: show if guess had at least one component correct
-
 export class DeceptionRoom extends Room<RoomState> {
   maxClients = 10
   dispatcher = new Dispatcher(this)

@@ -10,7 +10,7 @@ export class FinishGameCommand extends Command<RoomState> {
     this.state.players.forEach(p => {
       p.clues = p.clues.filter(() => false)
       p.means = p.means.filter(() => false)
-      p.hasBadge = false
+      p.guess = p.guess.filter(() => false)
       p.role = 0
     })
   }
