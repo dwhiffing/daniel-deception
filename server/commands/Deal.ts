@@ -5,21 +5,23 @@ import { SceneCard } from '../schema/SceneCard'
 import { ArraySchema } from '@colyseus/schema'
 import shuffle from 'lodash/shuffle'
 
-const numCards = 3
-
 export class DealCommand extends Command<RoomState> {
-  validate() {
+  validate({ phaseTimerMultiple = 30, numCards = 3 } = {}) {
     return (
       this.state.players.length >= 4 &&
       this.state.players.some(p => p.role === 1) &&
-      this.state.phaseIndex === -1
+      this.state.phaseIndex === -1 &&
+      typeof numCards === 'number' && numCards <= 5 && numCards >= 3 &&
+      typeof phaseTimerMultiple === 'number' && phaseTimerMultiple <= 100 && phaseTimerMultiple >= 15
     )
   }
 
-  execute() {
-    this.state.phaseIndex = 0
+  execute({ phaseTimerMultiple = 30, numCards = 3 } = {}) {
     this.state.phaseTimer = 0
     this.state.roundsLeft = 2
+    this.state.phaseIndex = 0
+    this.state.phaseTimerMultiple = phaseTimerMultiple
+    this.state.numCards = numCards
 
     this.state.clueDeck = this.state.clueDeck.filter(() => false)
     this.state.clueDeck.push(...shuffle(CLUES))

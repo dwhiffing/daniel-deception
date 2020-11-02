@@ -1,32 +1,69 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Flex } from '../../../components/Flex'
 import { Action } from '../../../components/Action'
 import { Typography } from '@material-ui/core'
 
-export const Actions = (props) => (
-  <Flex flex={0} variant="center" className="actions" zIndex={100}>
-    {console.log(props)}
-    <Flex variant="column center" style={{ padding: '4px 0' }}>
-      {props.phase === -1 && <PreGameActions {...props} />}
-      {props.phase === 0 && <MurderActions {...props} />}
-      {props.phase === 1 && <EvidenceActions {...props} />}
-      {props.phase === 2 && <PresentationActions {...props} />}
+export const Actions = (props) => {
+  return (
+    <Flex flex={0} variant="center" className="actions" zIndex={100}>
+      <Flex variant="column center" style={{ padding: '4px 0' }}>
+        {props.phase === -1 && <PreGameActions {...props} />}
+        {props.phase === 0 && <MurderActions {...props} />}
+        {props.phase === 1 && <EvidenceActions {...props} />}
+        {props.phase === 2 && <PresentationActions {...props} />}
+      </Flex>
     </Flex>
-  </Flex>
-)
+  )
+}
 
-const PreGameActions = ({ players, currentPlayer, room }) => (
-  <>
-    {currentPlayer.isAdmin && (
-      <Action
-        disabled={players.filter((p) => p.role === 1).length === 0}
-        onClick={() => room.send('Deal')}
-      >
-        Deal
-      </Action>
-    )}
-  </>
-)
+const PreGameActions = ({ players, currentPlayer, room }) => {
+  const [numCards, _setNumCards] = useState(3)
+  const [phaseTimerMultiple, _setPhaseTimerMultiple] = useState(30)
+
+  const setNumCards = (n) =>
+    _setNumCards(typeof n === 'number' && n <= 5 && n >= 3 ? n : 3)
+  const setPhaseTimerMultiple = (n) =>
+    _setPhaseTimerMultiple(
+      typeof n === 'number' && n <= 100 && n >= 15 ? n : 30,
+    )
+  return (
+    <>
+      {currentPlayer.isAdmin ? (
+        <Flex>
+          <Action
+            disabled={players.filter((p) => p.role === 1).length === 0}
+            onClick={() =>
+              room.send('Deal', {
+                numCards: numCards,
+                phaseTimerMultiple: phaseTimerMultiple,
+              })
+            }
+          >
+            Deal
+          </Action>
+          <Action
+            onClick={() => {
+              const thing = prompt(
+                'Set number of means/clue cards to deal to each player (3-5)',
+              )
+              setNumCards(+thing)
+            }}
+          >
+            Set num cards ({numCards})
+          </Action>
+          <Action
+            onClick={() => {
+              const thing = prompt('Set timer duration in seconds (15-100)')
+              setPhaseTimerMultiple(+thing)
+            }}
+          >
+            Set timer duration ({phaseTimerMultiple})
+          </Action>
+        </Flex>
+      ) : null}
+    </>
+  )
+}
 
 const MurderActions = ({ currentPlayer, selectedMeans, selectedClue, room }) =>
   currentPlayer.role === 2 ? (

@@ -12,6 +12,12 @@ export class RoomState extends Schema {
   @type('number')
   roundsLeft = -1
 
+  @type('number')
+  phaseTimerMultiple = 30
+
+  @type('number')
+  numCards = 3
+
   @type([Player])
   players = new ArraySchema<Player>()
   
