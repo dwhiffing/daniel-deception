@@ -12,18 +12,20 @@ export class AccuseCommand extends Command<RoomState, {
     return typeof clue === 'string' && typeof means === 'string' && player.hasBadge
   }
 
-  execute({ playerId, clue, means }) {
+  execute({ broadcast, playerId, clue, means }) {
     const player = this.state.players.find(p => p.id === playerId)
     
     if (this.state.activeCrime[0] === clue && this.state.activeCrime[1] === means) {
-      return [new FinishGameCommand().setPayload({ message: `${player.name} was correct! The crime was commited via ${clue} and ${means}!` })]
+      broadcast("message", `${player.name} was correct! The crime was commited via ${clue} and ${means}!`)
+      return [new FinishGameCommand()]
     } else {
-      this.state.message = `${player.name} was wrong! The crime was not commited via ${clue} and ${means}!`
+      broadcast("message", `${player.name} was wrong! The crime was not commited via ${clue} and ${means}!`)
       player.hasBadge = false
     }
     
     if (this.state.players.every(p => !p.hasBadge)) {
-      return [new FinishGameCommand().setPayload({ message: 'The murderer has eluded the investgators! They may come forward if they choose' })]
+      broadcast("message", 'The murderer has eluded the investgators! They may come forward if they choose')
+      return [new FinishGameCommand()]
     }
   }
 }

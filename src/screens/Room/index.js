@@ -5,9 +5,13 @@ import { Header } from './components/Header'
 import { Evidence } from './components/Evidence'
 import { Seats } from './components/Seats'
 import { Actions } from './components/Actions'
+import { Snackbar } from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
 
 export function Room({ room, setRoom }) {
   const state = useRoomState({ room, setRoom })
+
+  console.log(state)
 
   return (
     <Flex variant="column" style={{ paddingTop: 70, paddingBottom: 200 }}>
@@ -15,6 +19,16 @@ export function Room({ room, setRoom }) {
       <Evidence {...state} />
       <Seats {...state} />
       <Actions {...state} />
+
+      <Snackbar
+        open={!!state.message}
+        autoHideDuration={6000}
+        style={{ bottom: 100 }}
+      >
+        <Alert elevation={6} variant="filled" severity="info">
+          {state.message}
+        </Alert>
+      </Snackbar>
     </Flex>
   )
 }

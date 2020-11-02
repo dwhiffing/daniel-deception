@@ -14,15 +14,25 @@ export class DeceptionRoom extends Room<RoomState> {
     this.setMetadata({ roomName })
 
     this.onMessage('*', (client, action, _data = {}) => {
-      const data = { ..._data, playerId: _data.playerId || client.sessionId }
       const Command = Commands[action + 'Command']
-      Command && this.dispatcher.dispatch(new Command(), data)
+      if (!Command) return
+
+      this.dispatcher.dispatch(new Command(), {
+        ..._data,
+        broadcast: this.broadcast.bind(this),
+        playerId: _data.playerId || client.sessionId
+      })
     })
     
     this.clock.setInterval(() => {
       try {
-        this.dispatcher.dispatch(new Commands.TickCommand())
-      } catch(e) {}
+        this.dispatcher.dispatch(
+          new Commands.TickCommand(),
+          { broadcast: this.broadcast.bind(this) }
+        )
+      } catch(e) {
+        console.error(e)
+      }
     }, 1000)
   }
 
@@ -39,6 +49,7 @@ export class DeceptionRoom extends Room<RoomState> {
   onJoin(client: Client, options) {
     const playerId = client.sessionId
     this.dispatcher.dispatch(new Commands.JoinCommand(), { playerId, ...options })
+    this.broadcast('message', options.name + ' joined')
   }
 
   onLeave = async (client, consented) => {

@@ -47,12 +47,14 @@ const Seat = ({ player, index, phase, role, ...state }) => {
 
       <CardStack
         cards={player.means}
+        selected={(means) => means === state.selectedMeans}
         getBackgroundColor={() => `#D33830${opacity}`}
         onClick={(means) => canSelectCards && state.setSelectedMeans(means)}
       />
 
       <CardStack
         cards={player.clues}
+        selected={(clue) => clue === state.selectedClue}
         getBackgroundColor={() => `#0071AA${opacity}`}
         onClick={(clue) => canSelectCards && state.setSelectedClue(clue)}
       />

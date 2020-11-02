@@ -18,7 +18,6 @@ export class DealCommand extends Command<RoomState> {
     this.state.phaseIndex = 0
     this.state.phaseTimer = 0
     this.state.roundsLeft = 2
-    this.state.message = ''
 
     this.state.clueDeck = this.state.clueDeck.filter(() => false)
     this.state.clueDeck.push(...shuffle(CLUES))

@@ -1,13 +1,10 @@
 import React from 'react'
-import { Typography } from '@material-ui/core'
 import { Flex } from '../../../components/Flex'
 import { Action } from '../../../components/Action'
 
 export const Actions = (props) => (
   <Flex flex={0} variant="center" className="actions" zIndex={100}>
     <Flex variant="column center">
-      {props.message && <Typography>{props.message}</Typography>}
-
       {props.phase === -1 && <PreGameActions {...props} />}
       {props.phase === 0 && <MurderActions {...props} />}
       {props.phase === 1 && <EvidenceActions {...props} />}
@@ -16,9 +13,9 @@ export const Actions = (props) => (
   </Flex>
 )
 
-const PreGameActions = ({ phaseIndex, players, currentPlayer, room }) => (
+const PreGameActions = ({ players, currentPlayer, room }) => (
   <>
-    {currentPlayer.isAdmin && phaseIndex === -1 && (
+    {currentPlayer.isAdmin && (
       <Action
         disabled={players.filter((p) => p.role === 1).length === 0}
         onClick={() => room.send('Deal')}

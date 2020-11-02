@@ -7,12 +7,19 @@ export function useRoomState({ room, setRoom }) {
   const [roomState, setServerState] = useState(initialRoomState)
   const [selectedMeans, setSelectedMeans] = useState()
   const [selectedClue, setSelectedClue] = useState()
+  const [message, setMessage] = useState('')
   const { activeScene: scene, phaseIndex: phase, players } = roomState
 
   useEffect(() => {
     if (!room) return
 
     room.onStateChange((state) => setServerState({ ...state }))
+
+    room.onMessage('message', (opts) => {
+      setMessage(opts)
+      setTimeout(() => setMessage(''), 5000)
+    })
+
     room.onLeave(() => {
       localStorage.removeItem(room.id)
       setServerState(initialRoomState)
@@ -34,7 +41,10 @@ export function useRoomState({ room, setRoom }) {
     phase === 2
 
   return {
-    ...roomState,
+    activeCrime: roomState.activeCrime.toJSON
+      ? roomState.activeCrime.toJSON()
+      : [],
+    message,
     room,
     phase,
     currentPlayer,
@@ -45,7 +55,9 @@ export function useRoomState({ room, setRoom }) {
     role: currentPlayer.role,
     setSelectedMeans: (s) => setSelectedMeans((o) => (o === s ? null : s)),
     setSelectedClue: (s) => setSelectedClue((o) => (o === s ? null : s)),
-    players: roomState.players.sort((a, b) => (a.role === 1 ? -1 : 1)),
+    players: roomState.players.toJSON
+      ? roomState.players.toJSON().sort((a, b) => (a.role === 1 ? -1 : 1))
+      : [],
     scene: scene
       .slice(0, scene.length - roomState.roundsLeft)
       .filter(({ markedValueIndex: m }) => currentPlayer.role === 1 || m > -1),
@@ -59,5 +71,4 @@ const initialRoomState = {
   roundsLeft: -1,
   phaseIndex: -1,
   phaseTimer: -1,
-  message: '',
 }
