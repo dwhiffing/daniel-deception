@@ -47,6 +47,7 @@ export function useRoomState({ room, setRoom }) {
     message,
     room,
     phase,
+    phaseTimer: roomState.phaseTimer,
     currentPlayer,
     selectedClue,
     selectedMeans,
