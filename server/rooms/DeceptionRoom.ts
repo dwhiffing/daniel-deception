@@ -24,8 +24,9 @@ export class DeceptionRoom extends Room<RoomState> {
     
     this.clock.setInterval(() => {
       try {
-        this.dispatcher.dispatch(
-          new Commands.TickCommand(),
+        const command = new Commands.TickCommand()
+        command && this.dispatcher.dispatch(
+          command,
           { broadcast: this.broadcast.bind(this) }
         )
       } catch(e) {

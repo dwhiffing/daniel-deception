@@ -20,7 +20,7 @@ export function Room({ room, setRoom }) {
 
       <Snackbar
         open={!!state.message}
-        autoHideDuration={6000}
+        autoHideDuration={8000}
         style={{ bottom: 100 }}
       >
         <Alert elevation={6} variant="filled" severity="info">

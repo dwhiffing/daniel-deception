@@ -21,12 +21,29 @@ const Seat = ({ player, index, phase, role, ...state }) => {
   const isClient = playerId === state.currentPlayer.id
 
   const canSelectCards =
+    // murder phase and we are the murderer
     (phase === 0 && isClient && role === 2) ||
+    // presentation phase and we aren't the scientist
     (phase === 2 && !isClient && role !== 1)
 
   const opacity = canSelectCards ? 'FF' : '55'
   const color = COLORS[index]
   const style = { border: `5px solid ${color}`, margin: 10, padding: 10 }
+  const [clue, means, isClose] = player.guess || []
+  const accusedPlayer =
+    clue && means
+      ? state.players.find(
+          (p) => p.clues.includes(clue) || p.means.includes(means),
+        )
+      : null
+  const guessString =
+    clue && means
+      ? `Accused ${accusedPlayer.name} with ${means} and ${clue}. ${
+          isClose ? 'It was close' : 'It was wrong'
+        }.`
+      : player.role !== 1
+      ? 'Can still accuse.'
+      : ''
 
   return playerId ? (
     <Flex variant="column" style={style}>
@@ -38,9 +55,9 @@ const Seat = ({ player, index, phase, role, ...state }) => {
           {player.role === 1 ? ' (Scientist)' : ''}
         </Typography>
 
-        {player.guess && player.guess.length > 0 && (
+        {phase === 2 && (
           <Typography style={{ margin: '0 10px 10px', color: 'gray' }}>
-            They guessed {player.guess[0]} and {player.guess[1]}
+            {guessString}
           </Typography>
         )}
       </Flex>
