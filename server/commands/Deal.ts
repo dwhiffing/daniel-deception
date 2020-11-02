@@ -12,7 +12,7 @@ export class DealCommand extends Command<RoomState> {
       this.state.players.some(p => p.role === 1) &&
       this.state.phaseIndex === -1 &&
       typeof numCards === 'number' && numCards <= 5 && numCards >= 3 &&
-      typeof phaseTimerMultiple === 'number' && phaseTimerMultiple <= 100 && phaseTimerMultiple >= 15
+      typeof phaseTimerMultiple === 'number' && phaseTimerMultiple <= 120 && phaseTimerMultiple >= 5
     )
   }
 

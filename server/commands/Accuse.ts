@@ -18,7 +18,7 @@ export class AccuseCommand extends Command<RoomState, {
     if (this.state.activeCrime[0] === clue && this.state.activeCrime[1] === means) {
       broadcast("message", `${player.name} was correct! The crime was commited via ${clue} and ${means}!`)
       return [new FinishGameCommand()]
-    } else if (this.state.activeCrime[0] === clue && this.state.activeCrime[1] === means) {
+    } else if (this.state.activeCrime[0] === clue || this.state.activeCrime[1] === means) {
       broadcast("message", `${player.name} was close! The crime was commited via either ${clue} or ${means}!`)
       return [new FinishGameCommand()]
     } else {

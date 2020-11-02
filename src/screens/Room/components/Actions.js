@@ -24,7 +24,7 @@ const PreGameActions = ({ players, currentPlayer, room }) => {
     _setNumCards(typeof n === 'number' && n <= 5 && n >= 3 ? n : 3)
   const setPhaseTimerMultiple = (n) =>
     _setPhaseTimerMultiple(
-      typeof n === 'number' && n <= 100 && n >= 15 ? n : 30,
+      typeof n === 'number' && n <= 120 && n >= 15 ? n : 30,
     )
   return (
     <>
@@ -32,12 +32,7 @@ const PreGameActions = ({ players, currentPlayer, room }) => {
         <Flex>
           <Action
             disabled={players.filter((p) => p.role === 1).length === 0}
-            onClick={() =>
-              room.send('Deal', {
-                numCards: numCards,
-                phaseTimerMultiple: phaseTimerMultiple,
-              })
-            }
+            onClick={() => room.send('Deal', { numCards, phaseTimerMultiple })}
           >
             Deal
           </Action>
@@ -53,7 +48,9 @@ const PreGameActions = ({ players, currentPlayer, room }) => {
           </Action>
           <Action
             onClick={() => {
-              const thing = prompt('Set timer duration in seconds (15-100)')
+              const thing = prompt(
+                'Set time per investigator in seconds (5-120)',
+              )
               setPhaseTimerMultiple(+thing)
             }}
           >
@@ -119,7 +116,7 @@ const PresentationActions = ({
       {role === 2 ? (
         <Typography>
           You are the murderer. You killed the victim using {activeCrime[1]} and
-          left behind {activeCrime[1]} as evidence. Try to convince the others
+          left behind {activeCrime[0]} as evidence. Try to convince the others
           it wasn't you
         </Typography>
       ) : (
