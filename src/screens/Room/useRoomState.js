@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-// TODO: Allow admin to kick players
 // TODO: Allow scientist to draw up to 3 cards and select one of them (allow this number to be configured)
 // TODO: Send evidence marking over server with player color?
 // TODO: Refine game content/copy and add images for clues/means
@@ -15,7 +14,15 @@ export function useRoomState({ room, setRoom }) {
   useEffect(() => {
     if (!room) return
 
-    room.onStateChange((state) => setServerState({ ...state }))
+    room.onStateChange((state) => {
+      if (!state.players.toJSON().some((p) => p.id === room.sessionId)) {
+        room.leave()
+        localStorage.removeItem(room.id)
+        setServerState(initialRoomState)
+        setRoom()
+      }
+      setServerState({ ...state })
+    })
 
     room.onMessage('message', (opts) => {
       setMessage(opts)

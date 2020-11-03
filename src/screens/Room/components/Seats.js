@@ -82,6 +82,16 @@ const Seat = ({ player, index, phase, role, ...state }) => {
         onClick={(clue) => canSelectCards && state.setSelectedClue(clue)}
       />
 
+      {phase === -1 &&
+        state.currentPlayer.isAdmin &&
+        player.id !== state.currentPlayer.id && (
+          <Action
+            onClick={() => state.room.send('Leave', { playerId: player.id })}
+          >
+            Kick
+          </Action>
+        )}
+
       {showSetScientistButton && player.role !== 1 && (
         <Action
           onClick={() => state.room.send('AssignScientist', { playerId })}
