@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 
 // TODO: Allow admin to kick players
-// TODO: Only show selected evidence on non scientist client, reduce space taken up by evidence section
-// TODO: Allow scientist to draw up to 3 cards and select one of them ( allow this number to be configured)
+// TODO: Allow scientist to draw up to 3 cards and select one of them (allow this number to be configured)
 // TODO: Send evidence marking over server with player color?
 // TODO: Refine game content/copy and add images for clues/means
 

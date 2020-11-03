@@ -5,23 +5,32 @@ import { CardStack } from '../../../components/CardStack'
 
 export const Evidence = (props) =>
   props.renderEvidence && (
-    <Flex variant="column justify-between" style={{ flexWrap: 'wrap' }}>
+    <Flex variant="justify-between" style={{ flexWrap: 'wrap' }}>
       {props.scene.map((item, i) => (
-        <EvidenceItem key={`s${i}`} room={props.room} item={item} />
+        <EvidenceItem
+          key={`s${i}`}
+          role={props.role}
+          room={props.room}
+          item={item}
+        />
       ))}
     </Flex>
   )
 
-const EvidenceItem = ({ item, room }) => (
-  <Flex variant="column align-center" style={{ margin: 8 }}>
+const EvidenceItem = ({ item, room, role }) => (
+  <Flex variant="column align-center" style={{ margin: 8, minWidth: 300 }}>
     <Typography variant="h5" align="center">
       {item.type}
     </Typography>
 
     <CardStack
-      cards={item.values}
+      cards={item.values.filter((value, i) =>
+        role === 1
+          ? i === item.markedValueIndex || item.markedValueIndex === -1
+          : i === item.markedValueIndex,
+      )}
       getBackgroundColor={(n) =>
-        item.markedValueIndex === n ? '#D33830' : 'gray'
+        item.markedValueIndex === -1 ? 'gray' : '#D33830'
       }
       onClick={(value) => room.send('MarkEvidence', { type: item.type, value })}
     />
