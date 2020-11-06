@@ -10,6 +10,7 @@ import { Alert } from '@material-ui/lab'
 
 export function Room({ room, setRoom }) {
   const state = useRoomState({ room, setRoom })
+  console.log(state)
 
   return (
     <Flex variant="column" style={{ paddingTop: 70, paddingBottom: 200 }}>

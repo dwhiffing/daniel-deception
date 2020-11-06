@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-// TODO: Allow scientist to draw up to 3 cards and select one of them (allow this number to be configured)
+// TODO: Allow murderer to guess who witness is if they are about to lose
 // TODO: Send evidence marking over server with player color?
 // TODO: Refine game content/copy and add images for clues/means
 
@@ -78,7 +78,7 @@ export function useRoomState({ room, setRoom }) {
     renderEvidence,
     sceneCardsThisRound,
     activeScene,
-    sceneDeck: sceneDeck,
+    sceneDeck: sceneDeck.sort((s) => (s.markedValueIndex === -1 ? 1 : -1)),
     role: currentPlayer.role,
     scene: currentPlayer.role === 1 && phase === 1 ? sceneDeck : activeScene,
     setSelectedMeans: (s) => setSelectedMeans((o) => (o === s ? null : s)),

@@ -30,8 +30,13 @@ export class DealCommand extends Command<RoomState> {
     this.state.meansDeck.push(...shuffle(MEANS))
 
     const detectives = this.state.players.filter(p => p.role !== 1)
-    const murderer = shuffle(detectives)[0]
+    const shuffled = shuffle(detectives)
+    const murderer = shuffled[0]
+    const accomplice = shuffled[1]
+    const witness = shuffled[2]
     if (murderer) murderer.role = 2
+    if (accomplice && detectives.length >= 4) accomplice.role = 3
+    if (witness && detectives.length >= 4) witness.role = 4
     
     detectives.forEach(p => {
       p.clues.push(...this.state.clueDeck.splice(0, numCards))

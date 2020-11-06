@@ -96,12 +96,33 @@ const EvidenceActions = ({
   activeCrime,
   activeScene,
   sceneCardsThisRound,
+  players,
 }) => {
   const num = sceneCardsThisRound - activeScene.length
+  const murderer = players.find((m) => m.role === 2)
+  const accomplice = players.find((m) => m.role === 3)
+
   return currentPlayer.role === 1 ? (
     <Typography>
       Mark the crime scene based on the means {activeCrime[1]} and the clue{' '}
       {activeCrime[0]}. You have {num} remaining selection{num > 1 ? 's' : ''}.
+    </Typography>
+  ) : currentPlayer.role === 2 ? (
+    <Typography>
+      You commited the crime via {activeCrime[1]} and the clue {activeCrime[0]}.{' '}
+      {accomplice ? `Your accomplice was ${accomplice.name}` : ''}
+    </Typography>
+  ) : currentPlayer.role === 3 ? (
+    <Typography>
+      You were the accomplice of the murder using {activeCrime[1]} and the clue{' '}
+      {activeCrime[0]}. Help the murderer ({murderer.name}) avoid suspicion.
+    </Typography>
+  ) : currentPlayer.role === 4 ? (
+    <Typography>
+      You saw the murderer ({murderer.name}) and accomplice ({accomplice.name})
+      getting away from the scene. Try to draw attention to them without letting
+      them figure out you know. If they can guess you are the witness at the
+      end, they win.
     </Typography>
   ) : (
     <Typography>The Forensic Scientist is investigating</Typography>
