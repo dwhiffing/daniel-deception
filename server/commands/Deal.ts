@@ -43,6 +43,5 @@ export class DealCommand extends Command<RoomState> {
     this.state.sceneDeck.push(new SceneCard(CAUSE_OF_DEATH_SCENE.type, CAUSE_OF_DEATH_SCENE.values))
     this.state.sceneDeck.push(new SceneCard(LOCATION_SCENE.type, shuffle(LOCATION_SCENE.values).slice(0, 6)))
     this.state.sceneDeck.push(...shuffle(SCENES.map(s => new SceneCard(s.type, s.values))))
-    this.state.activeScene.push(...this.state.sceneDeck.splice(0, 7))
   }
 }

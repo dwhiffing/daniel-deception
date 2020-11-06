@@ -6,14 +6,16 @@ import { CardStack } from '../../../components/CardStack'
 export const Evidence = (props) =>
   props.renderEvidence && (
     <Flex variant="justify-between" style={{ flexWrap: 'wrap' }}>
-      {props.scene.map((item, i) => (
-        <EvidenceItem
-          key={`s${i}`}
-          role={props.role}
-          room={props.room}
-          item={item}
-        />
-      ))}
+      {props.scene
+        .sort((s) => (s.markedValueIndex === -1 ? 1 : -1))
+        .map((item, i) => (
+          <EvidenceItem
+            key={`s${i}`}
+            role={props.role}
+            room={props.room}
+            item={item}
+          />
+        ))}
     </Flex>
   )
 

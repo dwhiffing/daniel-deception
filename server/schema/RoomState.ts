@@ -29,12 +29,8 @@ export class RoomState extends Schema {
   @type(['string'])
   meansDeck = new ArraySchema<string>()
   
-  @filter(() => false)
   @type([SceneCard])
   sceneDeck = new ArraySchema<SceneCard>()
-  
-  @type([SceneCard])
-  activeScene = new ArraySchema<SceneCard>()
   
   @type(['string'])
   activeCrime = new ArraySchema<string>()

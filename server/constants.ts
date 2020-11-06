@@ -15,24 +15,24 @@ export const LOCATION_SCENE = {
 
 export const SCENES = [
   {
-  //   type: 'Day of Crime',
-  //   values: ['Weekday', 'Weekend', 'Spring', 'Summer', 'Autumn', 'Winter']
-  // }, {
+    type: 'Day of Crime',
+    values: ['Weekday', 'Weekend', 'Spring', 'Summer', 'Autumn', 'Winter']
+  }, {
     type: 'In Progress',
     values: ['Entertainment', 'Relaxation', 'Assemply', 'Trading', 'Visit', 'Dining']
-  // }, {
-  //   type: 'Victim\'s Build',
-  //   values: ['Overweight', 'Underweight', 'Tall', 'Short', 'Muscular', 'Average']
-  // }, {
-  //   type: 'Victim\'s Expression',
-  //   values: ['Peaceful', 'Struggling', 'Frightened', 'In Pain', 'Blank', 'Angry']
   }, {
-  //   type: 'General Impression',
-  //   values: ['Common', 'Creative', 'Fishy', 'Cruel', 'Horrible', 'Suspenseful']
-  // }, {
-  //   type: 'Victim\'s Clothes',
-  //   values: ['Neat', 'Average', 'Untidy', 'Shabby', 'Bizzare', 'Naked']
-  // }, {
+    type: 'Victim\'s Build',
+    values: ['Overweight', 'Underweight', 'Tall', 'Short', 'Muscular', 'Average']
+  }, {
+    type: 'Victim\'s Expression',
+    values: ['Peaceful', 'Struggling', 'Frightened', 'In Pain', 'Blank', 'Angry']
+  }, {
+    type: 'General Impression',
+    values: ['Common', 'Creative', 'Fishy', 'Cruel', 'Horrible', 'Suspenseful']
+  }, {
+    type: 'Victim\'s Clothes',
+    values: ['Neat', 'Average', 'Untidy', 'Shabby', 'Bizzare', 'Naked']
+  }, {
     type: 'Duration of Crime',
     values: ['Instant', 'Brief', 'Gradual', 'Prolonged', 'Few Days', 'Unclear']
   }, {
@@ -41,36 +41,36 @@ export const SCENES = [
   }, {
     type: 'Victim\'s Identity',
     values: ['Child', 'Young Adult', 'Middle Aged', 'Senior', 'Male', 'Female']
-  // }, {
-  //   type: 'Sudden Incident',
-  //   values: ['Power Failure', 'Fire', 'Conflict', 'Loss of Valuables', 'Scream', 'Nothing']
-  // }, {
-  //   type: 'Time of Death',
-  //   values: ['Dawn', 'Morning', 'Noon', 'Afternoon', 'Evening', 'Night']
-  // }, {
-  //   type: 'Weather',
-  //   values: ['Sunny', 'Stormy', 'Dry', 'Humid', 'Cold', 'Hot']
+  }, {
+    type: 'Sudden Incident',
+    values: ['Power Failure', 'Fire', 'Conflict', 'Loss of Valuables', 'Scream', 'Nothing']
+  }, {
+    type: 'Time of Death',
+    values: ['Dawn', 'Morning', 'Noon', 'Afternoon', 'Evening', 'Night']
+  }, {
+    type: 'Weather',
+    values: ['Sunny', 'Stormy', 'Dry', 'Humid', 'Cold', 'Hot']
   }, {
     type: 'Social Relationship',
     values: ['Relatives', 'Employer', 'Friends', 'Colleagues', 'Lovers', 'Strangers']
   }, {
     type: 'Evidence Left Behind',
     values: ['Natural', 'Artistic', 'Written', 'Synthetic', 'Personal', 'Unrelated']
-  // }, {
-  //   type: 'State of the Scene',
-  //   values: ['Bits and Pieces', 'Ashes', 'Water Stain', 'Cracked', 'Disorderly', 'Tidy']
+  }, {
+    type: 'State of the Scene',
+    values: ['Bits and Pieces', 'Ashes', 'Water Stain', 'Cracked', 'Disorderly', 'Tidy']
   }, {
     type: 'Motive of Crime',
     values: ['Hatred', 'Power', 'Money', 'Love', 'Jealousy', 'Justice']
-  // }, {
-  //   type: 'Murderer\'s Personality',
-  //   values: ['Arrogant', 'Despicable', 'Furious', 'Greedy', 'Forceful', 'Perverted']
+  }, {
+    type: 'Murderer\'s Personality',
+    values: ['Arrogant', 'Despicable', 'Furious', 'Greedy', 'Forceful', 'Perverted']
   }, {
     type: 'Trace at Scene',
     values: ['Fingerprint', 'Footprint', 'Bruise', 'Blood Stain', 'Bodily Fluid', 'Scar']
-  // }, {
-  //   type: 'Corpse Condition',
-  //   values: ['Still Warm', 'Stiff', 'Decayed', 'Incomplete', 'Intact', 'Twisted']
+  }, {
+    type: 'Corpse Condition',
+    values: ['Still Warm', 'Stiff', 'Decayed', 'Incomplete', 'Intact', 'Twisted']
   }, {
     type: 'Victim\'s Occupation',
     values: ['Boss', 'Professional', 'Worker', 'Student', 'Unemployed', 'Retired']

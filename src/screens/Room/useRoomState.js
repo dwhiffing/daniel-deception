@@ -9,7 +9,7 @@ export function useRoomState({ room, setRoom }) {
   const [selectedMeans, setSelectedMeans] = useState()
   const [selectedClue, setSelectedClue] = useState()
   const [message, setMessage] = useState('')
-  const { activeScene: scene, phaseIndex: phase, players } = roomState
+  const { sceneDeck: scene, phaseIndex: phase, players } = roomState
 
   useEffect(() => {
     if (!room) return
@@ -49,6 +49,20 @@ export function useRoomState({ room, setRoom }) {
     (phase === 1 && currentPlayer.role !== 1) ||
     phase === 2
 
+  const sceneCardsThisRound = CARDS_PER_ROUND[2 - roomState.roundsLeft]
+  const activeScene = scene
+    .toJSON()
+    .filter((s) => s.markedValueIndex > -1)
+    .filter(({ markedValueIndex: m }) => currentPlayer.role === 1 || m > -1)
+
+  const sceneDeck = scene
+    .toJSON()
+    .slice(
+      0,
+      sceneCardsThisRound +
+        (phase === 1 && activeScene.length < sceneCardsThisRound ? 2 : -1),
+    )
+
   return {
     activeCrime: roomState.activeCrime.toJSON
       ? roomState.activeCrime.toJSON()
@@ -62,23 +76,26 @@ export function useRoomState({ room, setRoom }) {
     selectedMeans,
     renderSeats,
     renderEvidence,
+    sceneCardsThisRound,
+    activeScene,
+    sceneDeck: sceneDeck,
     role: currentPlayer.role,
+    scene: currentPlayer.role === 1 && phase === 1 ? sceneDeck : activeScene,
     setSelectedMeans: (s) => setSelectedMeans((o) => (o === s ? null : s)),
     setSelectedClue: (s) => setSelectedClue((o) => (o === s ? null : s)),
     players: roomState.players.toJSON
       ? roomState.players.toJSON().sort((a, b) => (a.role === 1 ? -1 : 1))
       : [],
-    scene: scene
-      .slice(0, scene.length - roomState.roundsLeft)
-      .filter(({ markedValueIndex: m }) => currentPlayer.role === 1 || m > -1),
   }
 }
 
 const initialRoomState = {
   players: [],
   activeCrime: [],
-  activeScene: [],
+  sceneDeck: { toJSON: () => [] },
   roundsLeft: -1,
   phaseIndex: -1,
   phaseTimer: -1,
 }
+
+const CARDS_PER_ROUND = [5, 6, 7]

@@ -23,9 +23,7 @@ const PreGameActions = ({ players, currentPlayer, room }) => {
   const setNumCards = (n) =>
     _setNumCards(typeof n === 'number' && n <= 5 && n >= 3 ? n : 3)
   const setPhaseTimerMultiple = (n) =>
-    _setPhaseTimerMultiple(
-      typeof n === 'number' && n <= 120 && n >= 15 ? n : 30,
-    )
+    _setPhaseTimerMultiple(typeof n === 'number' && n <= 120 && n >= 5 ? n : 30)
   return (
     <>
       {currentPlayer.isAdmin ? (
@@ -93,15 +91,22 @@ const MurderActions = ({ currentPlayer, selectedMeans, selectedClue, room }) =>
     <Typography>The murder is currently happening</Typography>
   )
 
-const EvidenceActions = ({ currentPlayer, activeCrime }) =>
-  currentPlayer.role === 1 ? (
+const EvidenceActions = ({
+  currentPlayer,
+  activeCrime,
+  activeScene,
+  sceneCardsThisRound,
+}) => {
+  const num = sceneCardsThisRound - activeScene.length
+  return currentPlayer.role === 1 ? (
     <Typography>
       Mark the crime scene based on the means {activeCrime[1]} and the clue{' '}
-      {activeCrime[0]}
+      {activeCrime[0]}. You have {num} remaining selection{num > 1 ? 's' : ''}.
     </Typography>
   ) : (
     <Typography>The Forensic Scientist is investigating</Typography>
   )
+}
 
 const PresentationActions = ({
   currentPlayer,
