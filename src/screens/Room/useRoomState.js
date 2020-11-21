@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-// TODO: Allow murderer to guess who witness is if they are about to lose
+// TOOD: Add end screen
 // TODO: Send evidence marking over server with player color?
 // TODO: Refine game content/copy and add images for clues/means
 

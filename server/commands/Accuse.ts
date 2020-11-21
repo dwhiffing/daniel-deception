@@ -23,6 +23,7 @@ export class AccuseCommand extends Command<
   execute({ playerId, clue, means }) {
     const [activeClue, activeMeans] = this.state.activeCrime
     const player = this.state.players.find((p) => p.id === playerId)
+    const witness = this.state.players.find((p) => p.role === 4)
     const accused = this.state.players.find(
       (p) => p.clues.includes(clue) || p.means.includes(means),
     ).name
@@ -32,7 +33,12 @@ export class AccuseCommand extends Command<
       message(
         `${player.name} was correct! The crime was committed by ${accused} via ${means} and ${clue}!`,
       )
-      return [new FinishGameCommand()]
+      if (witness) {
+        this.state.phaseIndex = 3
+        return []
+      } else {
+        return [new FinishGameCommand()]
+      }
     } else if (activeClue === clue || activeMeans === means) {
       message(
         `${player.name} was close! The crime was committed by ${accused} either via ${means} or ${clue}!`,

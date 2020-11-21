@@ -11,6 +11,7 @@ export const Actions = (props) => {
         {props.phase === 0 && <MurderActions {...props} />}
         {props.phase === 1 && <EvidenceActions {...props} />}
         {props.phase === 2 && <PresentationActions {...props} />}
+        {props.phase === 3 && <ReversalActions {...props} />}
       </Flex>
     </Flex>
   )
@@ -180,6 +181,63 @@ const PresentationActions = ({
           >
             Accuse
           </Action>
+        </Flex>
+      )}
+    </>
+  ) : (
+    <Typography>
+      Plan your next clue based on how the investigators responded to your last
+      one!
+    </Typography>
+  )
+}
+
+const ReversalActions = ({
+  players,
+  currentPlayer,
+  selectedClue,
+  activeCrime,
+  selectedMeans,
+  room,
+  role,
+}) => {
+  // const murderer = players.find((m) => m.role === 2)
+  // const accomplice = players.find((m) => m.role === 3)
+  return role !== 1 ? (
+    <>
+      {role === 2 ? (
+        <Typography>
+          You are the murderer. You've been made, but if you can guess who the
+          witness was, you'll win.
+        </Typography>
+      ) : role === 3 ? (
+        <Typography>
+          You are the accomplice. You've been made, but if the murderer can
+          guess who the witness was, you'll win. Try to nudge them in the right
+          direction.
+        </Typography>
+      ) : role === 4 ? (
+        <Typography>
+          You are the witness. The murderers have almost been caught. If they
+          find you, they'll kill you and get away with the crime.
+        </Typography>
+      ) : (
+        <Typography>
+          You are a detective. You've almost caught the criminals, but if the
+          witness disappears, they'll get away!
+        </Typography>
+      )}
+      {currentPlayer.role === 2 && (
+        <Flex variant="column center">
+          {players.map((player) => (
+            <Action
+              onClick={() => {
+                room.send('Reversal', { selectedPlayerId: player.id })
+              }}
+            >
+              Guess {player.name}
+            </Action>
+          ))}
         </Flex>
       )}
     </>
