@@ -15,12 +15,6 @@ export function useRoomState({ room, setRoom }) {
     if (!room) return
 
     room.onStateChange((state) => {
-      if (!state.players.toJSON().some((p) => p.id === room.sessionId)) {
-        room.leave()
-        localStorage.removeItem(room.id)
-        setServerState(initialRoomState)
-        setRoom()
-      }
       setServerState({ ...state })
     })
 
@@ -29,8 +23,9 @@ export function useRoomState({ room, setRoom }) {
       setTimeout(() => setMessage(''), 5000)
     })
 
-    room.onLeave(() => {
-      localStorage.removeItem(room.id)
+    room.onLeave((code) => {
+      if (code === 1000) localStorage.removeItem(room.id)
+
       setServerState(initialRoomState)
       setRoom()
     })
