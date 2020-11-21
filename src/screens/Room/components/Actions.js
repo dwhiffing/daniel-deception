@@ -130,26 +130,41 @@ const EvidenceActions = ({
 }
 
 const PresentationActions = ({
+  players,
   currentPlayer,
   selectedClue,
   activeCrime,
   selectedMeans,
   room,
   role,
-}) =>
-  role !== 1 ? (
+}) => {
+  const murderer = players.find((m) => m.role === 2)
+  const accomplice = players.find((m) => m.role === 3)
+  return role !== 1 ? (
     <>
       {role === 2 ? (
         <Typography>
           You are the murderer. You killed the victim using {activeCrime[1]} and
           left behind {activeCrime[0]} as evidence. Try to convince the others
-          it wasn't you
+          it wasn't you.
+        </Typography>
+      ) : role === 3 ? (
+        <Typography>
+          You are the accomplice. You killed the victim using {activeCrime[1]}{' '}
+          and left behind {activeCrime[0]} as evidence. Try to convince the
+          others it wasn't {murderer.name}.
+        </Typography>
+      ) : role === 4 ? (
+        <Typography>
+          You are the witness. Try to draw attention to the murderer (
+          {murderer.name}) but not yourself. The accomplice was{' '}
+          {accomplice.name}. They win if they can guess the witness at the end.
         </Typography>
       ) : (
         <Typography>
-          Discuss the clues given by Forensics to determine the murderer, and
-          via which means (Red) and key evidence (Blue). You only get one chance
-          to accuse!
+          You are a detective. Discuss the clues given to determine the
+          murderer, and via which means (Red) and key evidence (Blue). You only
+          get one chance to accuse!
         </Typography>
       )}
       {currentPlayer.guess.length === 0 && (
@@ -174,3 +189,4 @@ const PresentationActions = ({
       one!
     </Typography>
   )
+}

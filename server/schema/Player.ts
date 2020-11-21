@@ -9,6 +9,7 @@ export class Player extends Schema {
   @type('string')
   name = ''
 
+  // 0: detective, 1: scientist, 2: murderer, 3: accomplice, 4: witness
   @type('number')
   role = 0
 
@@ -35,4 +36,3 @@ export class Player extends Schema {
     this.id = id
   }
 }
-

@@ -1,24 +1,24 @@
-import { Command } from "@colyseus/command"
-import { RoomState } from "../schema"
-import { FinishGameCommand } from "./FinishGame"
-import { LeaveCommand } from "./Leave"
+import { Command } from '@colyseus/command'
+import { RoomState } from '../schema'
+import { FinishGameCommand } from './FinishGame'
+import { LeaveCommand } from './Leave'
 
 export class TickCommand extends Command<RoomState> {
-  execute({ broadcast }) {
+  execute() {
     let commands = []
 
     // tick disconnected player reconnect timers
     commands = this.state.players
-    .filter(player => !player.connected)
-    .map(player => {
-      player.remainingConnectionTime -= 1
-      
-      if (player.remainingConnectionTime === 0) {
-        player.reconnection.reject()
-        return new LeaveCommand().setPayload({ playerId: player.id })
-      }
-    })
-    
+      .filter((player) => !player.connected)
+      .map((player) => {
+        player.remainingConnectionTime -= 1
+
+        if (player.remainingConnectionTime === 0) {
+          player.reconnection.reject()
+          return new LeaveCommand().setPayload({ playerId: player.id })
+        }
+      })
+
     if (this.state.phaseIndex !== 2) {
       return commands
     }
@@ -35,9 +35,9 @@ export class TickCommand extends Command<RoomState> {
       this.state.phaseIndex = 1
       return commands
     }
-    
+
     // otherwise the murderers win
-    broadcast('message', 'The murderers won!')
+    this.room.broadcast('message', 'The murderers won!')
     return [new FinishGameCommand()]
   }
 }

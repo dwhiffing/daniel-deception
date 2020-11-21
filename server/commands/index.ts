@@ -1,5 +1,6 @@
 export * from './Accuse'
 export * from './AssignScientist'
+export * from './CheckAccuseCount'
 export * from './Deal'
 export * from './FinishGame'
 export * from './Join'
