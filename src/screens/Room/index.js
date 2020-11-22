@@ -17,6 +17,7 @@ export function Room({ room, setRoom }) {
       <Header {...state} />
       <Evidence {...state} />
       <Seats {...state} />
+      <LastGame {...state} />
       <Actions {...state} />
 
       <Snackbar
@@ -29,5 +30,40 @@ export function Room({ room, setRoom }) {
         </Alert>
       </Snackbar>
     </Flex>
+  )
+}
+
+const ROLES = ['Detective', 'Scientist', 'Murderer', 'Accomplice', 'Witness']
+const LastGame = ({ lastCrime }) => {
+  if (!lastCrime) return null
+  const rolesArr = Object.entries(lastCrime.roles)
+  const bad = rolesArr.filter(([name, role]) => role === 2 || role === 3)
+  const good = rolesArr.filter(
+    ([name, role]) => role === 0 || role === 1 || role === 4,
+  )
+  const mapper = ([name, role]) => (
+    <p>
+      {ROLES[role]}: {name}
+    </p>
+  )
+  return (
+    <div style={{ margin: 16 }}>
+      <h2>Last Crime</h2>
+      <h3>
+        {lastCrime.solved
+          ? 'Crime was solved and murderers were arrested!'
+          : 'Murderers eluded the investigation!'}
+      </h3>
+      <p>
+        <span style={{ color: 'red' }}>Means: {lastCrime.crime[1]}</span>{' '}
+        <span style={{ color: 'blue' }}>Clue: {lastCrime.crime[0]}</span>
+      </p>
+      <div style={{ margin: '32px 0' }}>
+        <h4>Bad Cops</h4>
+        {bad.map(mapper)}
+      </div>
+      <h4>Good Cops</h4>
+      {good.map(mapper)}
+    </div>
   )
 }

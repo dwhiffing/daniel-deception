@@ -15,12 +15,12 @@ export class LeaveCommand extends Command<RoomState, { playerId: string }> {
 
     if (!roles.includes(1)) {
       this.room.broadcast('message', 'Stalemate (The Investigator left)')
-      return [new FinishGameCommand()]
+      return [new FinishGameCommand().setPayload({ crimeSolved: false })]
     }
 
     if (!roles.includes(2)) {
       this.room.broadcast('message', 'Stalemate (The Murderer left)')
-      return [new FinishGameCommand()]
+      return [new FinishGameCommand().setPayload({ crimeSolved: false })]
     }
 
     return [new CheckAccuseCountCommand()]

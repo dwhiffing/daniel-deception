@@ -38,6 +38,6 @@ export class TickCommand extends Command<RoomState> {
 
     // otherwise the murderers win
     this.room.broadcast('message', 'The murderers won!')
-    return [new FinishGameCommand()]
+    return [new FinishGameCommand().setPayload({ crimeSolved: false })]
   }
 }

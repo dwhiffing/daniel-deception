@@ -32,7 +32,11 @@ export class ReversalCommand extends Command<
         'The murderers killed an innocent bystander and went to prison.',
       )
     }
-    return [new FinishGameCommand()]
+    return [
+      new FinishGameCommand().setPayload({
+        crimeSolved: guessedPlayer.role !== 4,
+      }),
+    ]
   }
 }
 

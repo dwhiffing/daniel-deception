@@ -37,7 +37,7 @@ export class AccuseCommand extends Command<
         this.state.phaseIndex = 3
         return []
       } else {
-        return [new FinishGameCommand()]
+        return [new FinishGameCommand().setPayload({ crimeSolved: true })]
       }
     } else if (activeClue === clue || activeMeans === means) {
       message(

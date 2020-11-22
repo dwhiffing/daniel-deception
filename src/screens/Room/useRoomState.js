@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 
-// TOOD: Add end screen
-// TODO: Send evidence marking over server with player color?
+// TOOD: better copy/instructions
+// TOOD: better system for scientist
 // TODO: Refine game content/copy and add images for clues/means
+// TODO: Send evidence marking over server with player color?
 
 export function useRoomState({ room, setRoom }) {
   const [roomState, setServerState] = useState(initialRoomState)
   const [selectedMeans, setSelectedMeans] = useState()
   const [selectedClue, setSelectedClue] = useState()
   const [message, setMessage] = useState('')
-  const { sceneDeck: scene, phaseIndex: phase, players } = roomState
+  const { sceneDeck: scene, phaseIndex: phase, players, lastCrime } = roomState
 
   useEffect(() => {
     if (!room) return
@@ -57,6 +58,10 @@ export function useRoomState({ room, setRoom }) {
       sceneCardsThisRound +
         (phase === 1 && activeScene.length < sceneCardsThisRound ? 2 : -1),
     )
+  let _lastCrime
+  try {
+    _lastCrime = JSON.parse(lastCrime)
+  } catch (err) {}
 
   return {
     activeCrime: roomState.activeCrime.toJSON
@@ -73,6 +78,7 @@ export function useRoomState({ room, setRoom }) {
     renderEvidence,
     sceneCardsThisRound,
     activeScene,
+    lastCrime: _lastCrime,
     sceneDeck: sceneDeck.sort((s) => (s.markedValueIndex === -1 ? 1 : -1)),
     role: currentPlayer.role,
     scene: currentPlayer.role === 1 && phase === 1 ? sceneDeck : activeScene,
@@ -87,6 +93,7 @@ export function useRoomState({ room, setRoom }) {
 const initialRoomState = {
   players: [],
   activeCrime: [],
+  lastCrime: '',
   sceneDeck: { toJSON: () => [] },
   roundsLeft: -1,
   phaseIndex: -1,

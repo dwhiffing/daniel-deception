@@ -12,6 +12,9 @@ export class RoomState extends Schema {
   @type('number')
   roundsLeft = -1
 
+  @type('string')
+  lastCrime = ''
+
   @type('number')
   phaseTimerMultiple = 30
 
@@ -20,21 +23,21 @@ export class RoomState extends Schema {
 
   @type([Player])
   players = new ArraySchema<Player>()
-  
+
   @filter(() => false)
   @type(['string'])
   clueDeck = new ArraySchema<string>()
-  
+
   @filter(() => false)
   @type(['string'])
   meansDeck = new ArraySchema<string>()
-  
+
   @type([SceneCard])
   sceneDeck = new ArraySchema<SceneCard>()
-  
+
   @type(['string'])
   activeCrime = new ArraySchema<string>()
-  
+
   constructor() {
     super()
   }

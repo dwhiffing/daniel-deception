@@ -14,7 +14,7 @@ export class CheckAccuseCountCommand extends Command<RoomState> {
         'message',
         `The murderer has eluded the investgators! ${murderer.name} committed the crime via ${means} and ${clue}`,
       )
-      return [new FinishGameCommand()]
+      return [new FinishGameCommand().setPayload({ crimeSolved: false })]
     }
   }
 }
